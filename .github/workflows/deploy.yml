@@ -5,6 +5,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      run_demo_seed:
+        description: 'Demo-Daten einspielen (4 Beispiel-Kunden/Sites)'
+        type: boolean
+        default: false
 
 # Verhindert parallele Deploys, die sich gegenseitig überholen.
 concurrency:
@@ -110,4 +115,5 @@ jobs:
           ./vendor/bin/dep deploy \
             -o mittwald_app_id=${{ secrets.MITTWALD_APP_ID }} \
             -o mittwald_ssh_public_key_file=.mw-deploy/id_rsa.pub \
-            -o mittwald_ssh_private_key_file=.mw-deploy/id_rsa
+            -o mittwald_ssh_private_key_file=.mw-deploy/id_rsa \
+            -o run_demo_seed=${{ inputs.run_demo_seed || 'false' }}

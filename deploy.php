@@ -67,6 +67,16 @@ task('artisan:seed:admin', function () {
 })->desc('Admin-Benutzer anlegen/aktualisieren');
 after('artisan:migrate', 'artisan:seed:admin');
 
+// Optional: Demo-Daten einspielen. Läuft nur, wenn der Deploy mit
+// -o run_demo_seed=true gestartet wurde (manueller Workflow-Trigger).
+task('artisan:seed:demo', function () {
+    if (get('run_demo_seed', 'false') !== 'true') {
+        return;
+    }
+    run('cd {{release_path}} && {{bin/php}} artisan db:seed --class=DemoSeeder --force');
+})->desc('Demo-Daten einspielen (nur auf Anforderung)');
+after('artisan:seed:admin', 'artisan:seed:demo');
+
 // Bei Fehler: Lock lösen, damit der nächste Lauf nicht blockiert.
 after('deploy:failed', 'deploy:unlock');
 

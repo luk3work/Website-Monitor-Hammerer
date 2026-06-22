@@ -31,6 +31,8 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            // Profilseite: Name/E-Mail/Passwort selbst ändern (oben rechts im Benutzermenü).
+            ->profile()
             // Dunkles Daten-Cockpit als Standard (Hell-/Dunkel-Umschalter bleibt erhalten).
             ->defaultThemeMode(ThemeMode::Dark)
             ->colors([
