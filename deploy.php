@@ -46,6 +46,11 @@ mittwald_app('a-f6ti4y', hostname: 'mittwald-prod')
     ->set('public_path', '/public')
     ->set('branch', 'main');
 
+// Die Recipe würde sonst versuchen, einen Virtual Host namens "mittwald-prod"
+// anzulegen (kein echter Domainname -> 400 Bad Request). Die Domain-Verknüpfung
+// nehmen wir bewusst manuell in mStudio vor.
+task('mittwald:domain')->disable();
+
 /*
  | -------------------------------------------------------------------------
  | Laravel-spezifische Schritte
