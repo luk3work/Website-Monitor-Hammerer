@@ -18,7 +18,11 @@ require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/vendor/mittwald/deployer-recipes/recipes/deploy.php';
 
 set('application', 'ops-cockpit');
-set('repository', 'git@github.com:<GITHUB-ORG>/ops-cockpit.git');
+set('repository', 'https://github.com/luk3work/Website-Monitor-Hammerer.git');
+
+// Code aus dem CI-Checkout hochladen (local_archive) -> der Server muss NICHT
+// selbst aus dem privaten GitHub klonen (keine Server->GitHub-Auth nötig).
+set('update_code_strategy', 'local_archive');
 
 // Zwischen Releases geteilt: .env und Storage bleiben über Deploys hinweg bestehen.
 add('shared_files', ['.env']);
@@ -30,12 +34,13 @@ set('keep_releases', 5);
 
 // Laufzeit-Abhängigkeiten auf der Plattform (Mittwald installiert sie automatisch).
 set('mittwald_app_dependencies', [
-    'php'      => '~8.3',
+    'php'      => '~8.4',
     'composer' => '>=2.0',
 ]);
 
-// Production-Host. document_root in mStudio = /current/public (Laravel webroot).
-mittwald_app('<MITTWALD-APP-ID>', hostname: 'mittwald-prod')
+// Production-Host (App-ID wird zusätzlich per CLI-Secret MITTWALD_APP_ID überschrieben).
+// document_root in mStudio = /current/public (Laravel webroot).
+mittwald_app('a-f6ti4y', hostname: 'mittwald-prod')
     ->set('public_path', '/public')
     ->set('branch', 'main');
 

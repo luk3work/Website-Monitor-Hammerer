@@ -39,7 +39,7 @@ jobs:
         if: steps.cfg.outputs.ready == 'true'
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.4'
           tools: composer:v2
 
       - name: Composer install (ohne Dev)
