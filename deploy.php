@@ -15,6 +15,8 @@ namespace Deployer;
 
 require 'recipe/laravel.php';
 require __DIR__ . '/vendor/autoload.php';
+// Kompatibilitäts-Wrapper VOR der Mittwald-Recipe laden (Deployer-7-Helfer für Deployer 8).
+require __DIR__ . '/deploy_polyfill.php';
 require __DIR__ . '/vendor/mittwald/deployer-recipes/recipes/deploy.php';
 
 set('application', 'ops-cockpit');
