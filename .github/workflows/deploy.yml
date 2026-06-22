@@ -93,13 +93,13 @@ jobs:
           DB_PORT=3306
           DB_DATABASE=mysql_bgrsle
           DB_USERNAME=dbu_bgrsle
-          DB_PASSWORD=${DB_PASSWORD}
+          DB_PASSWORD="${DB_PASSWORD}"
           SESSION_DRIVER=database
           CACHE_STORE=database
           QUEUE_CONNECTION=database
           ADMIN_NAME="Lukas Wagner"
           ADMIN_EMAIL=wagner@hammerer.at
-          ADMIN_PASSWORD=${ADMIN_PASSWORD}
+          ADMIN_PASSWORD="${ADMIN_PASSWORD}"
           EOF
 
       - name: Deploy ausführen

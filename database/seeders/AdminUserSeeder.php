@@ -27,7 +27,8 @@ class AdminUserSeeder extends Seeder
             ['email' => $email],
             [
                 'name'              => config('admin.name', 'Administrator'),
-                'password'          => Hash::make($password),
+                // Klartext übergeben: das User-Modell hasht via 'hashed'-Cast genau einmal.
+                'password'          => $password,
                 'role'              => 'admin',
                 'email_verified_at' => now(),
             ]
