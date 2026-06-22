@@ -33,6 +33,7 @@ oauth-public.key
 
 # --- Deployment-Artefakte ---
 /.mw-deploy
+.env.deploy
 .dep
 deploy.local.php
 

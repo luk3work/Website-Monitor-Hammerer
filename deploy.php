@@ -58,6 +58,19 @@ after('deploy:symlink', 'artisan:migrate');
 after('deploy:failed', 'deploy:unlock');
 
 /*
+ | Server-.env aus dem CI bereitstellen.
+ | Die GitHub Action schreibt .env.deploy aus Secrets (APP_KEY, DB_PASSWORD).
+ | Diese Datei wird VOR dem Teilen nach shared/.env hochgeladen, damit
+ | composer/artisan und vor allem die Migrationen die DB-Zugangsdaten finden.
+ */
+task('deploy:dotenv', function () {
+    if (file_exists(__DIR__ . '/.env.deploy')) {
+        upload(__DIR__ . '/.env.deploy', '{{deploy_path}}/shared/.env');
+    }
+})->desc('Server-.env hochladen');
+before('deploy:shared', 'deploy:dotenv');
+
+/*
  | Optional für ein Staging-Environment eine zweite App anlegen und einkommentieren:
  |
  | mittwald_app('<MITTWALD-STAGING-APP-ID>', hostname: 'mittwald-staging')
