@@ -8,6 +8,7 @@ use App\Models\Site;
 use App\Models\Task;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Schnellüberblick oben im Cockpit. "Alles grün" soll langweilig aussehen:
@@ -43,6 +44,13 @@ class CockpitStatsOverview extends StatsOverviewWidget
             ->where('severity', 'critical')
             ->count();
 
+        // Wiederkehrender Monatsumsatz (MRR) aus gebuchten Paketen: monatlich + jährlich/12.
+        $mrr = (float) DB::table('site_packages')
+            ->join('packages', 'packages.id', '=', 'site_packages.package_id')
+            ->where('site_packages.state', 'booked')
+            ->selectRaw('COALESCE(SUM(packages.price_monthly), 0) + COALESCE(SUM(packages.price_yearly), 0) / 12 AS mrr')
+            ->value('mrr');
+
         return [
             Stat::make('Sites online', "{$online} / {$total}")
                 ->description($offline > 0 ? "{$offline} offline" : 'alle erreichbar')
@@ -74,6 +82,11 @@ class CockpitStatsOverview extends StatsOverviewWidget
                 ->description($openCritical > 0 ? 'sofort handeln' : 'nichts Dringendes')
                 ->color($openCritical > 0 ? 'danger' : 'success')
                 ->icon('heroicon-o-exclamation-triangle'),
+
+            Stat::make('Wiederkehrender Umsatz', number_format($mrr, 0, ',', '.') . ' €/M')
+                ->description('aus gebuchten Paketen (MRR)')
+                ->color('gray')
+                ->icon('heroicon-o-banknotes'),
         ];
     }
 }
