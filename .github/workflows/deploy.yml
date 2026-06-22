@@ -17,23 +17,42 @@ jobs:
     environment: production
 
     steps:
+      # Solange Mittwald noch nicht eingerichtet ist (keine Secrets), wird der
+      # Deploy sauber übersprungen statt rot fehlzuschlagen.
+      - name: Mittwald-Konfiguration prüfen
+        id: cfg
+        env:
+          MITTWALD_API_TOKEN: ${{ secrets.MITTWALD_API_TOKEN }}
+        run: |
+          if [ -n "${MITTWALD_API_TOKEN}" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Mittwald noch nicht konfiguriert (keine Secrets) – Deploy wird übersprungen."
+          fi
+
       - name: Checkout
+        if: steps.cfg.outputs.ready == 'true'
         uses: actions/checkout@v4
 
       - name: Setup PHP
+        if: steps.cfg.outputs.ready == 'true'
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
           tools: composer:v2
 
       - name: Composer install (ohne Dev)
+        if: steps.cfg.outputs.ready == 'true'
         run: composer install --no-dev --prefer-dist --no-progress --optimize-autoloader
 
       # Deployer/Mittwald-Recipe liegen in require-dev -> für den Deploy-Lauf separat holen.
       - name: Deployer + Mittwald-Recipe bereitstellen
-        run: composer require --dev deployer/deployer mittwald/deployer-recipes --no-interaction
+        if: steps.cfg.outputs.ready == 'true'
+        run: composer require --dev deployer/deployer mittwald/deployer-recipes -W --no-interaction
 
       - name: SSH-Keys schreiben
+        if: steps.cfg.outputs.ready == 'true'
         env:
           MITTWALD_SSH_PRIVATE_KEY: ${{ secrets.MITTWALD_SSH_PRIVATE_KEY }}
           MITTWALD_SSH_PUBLIC_KEY: ${{ secrets.MITTWALD_SSH_PUBLIC_KEY }}
@@ -45,11 +64,13 @@ jobs:
 
       # Host-Key vorab eintragen (sicherer als StrictHostKeyChecking=accept-new).
       - name: SSH-Host-Key eintragen
+        if: steps.cfg.outputs.ready == 'true'
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.MITTWALD_SSH_HOST_KEY }}" > ~/.ssh/known_hosts
 
       - name: Deploy ausführen
+        if: steps.cfg.outputs.ready == 'true'
         env:
           MITTWALD_API_TOKEN: ${{ secrets.MITTWALD_API_TOKEN }}
         run: |
