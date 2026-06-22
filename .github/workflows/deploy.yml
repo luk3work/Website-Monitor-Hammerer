@@ -62,12 +62,14 @@ jobs:
           echo "${MITTWALD_SSH_PUBLIC_KEY}" > .mw-deploy/id_rsa.pub
           chmod 600 .mw-deploy/id_rsa*
 
-      # Host-Key vorab eintragen (sicherer als StrictHostKeyChecking=accept-new).
-      - name: SSH-Host-Key eintragen
+      # Mit der Mittwald-Recipe wird der Host-Key nicht vorab benötigt:
+      # unbekannte Hosts beim ersten Kontakt akzeptieren.
+      - name: SSH known_hosts (accept-new)
         if: steps.cfg.outputs.ready == 'true'
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.MITTWALD_SSH_HOST_KEY }}" > ~/.ssh/known_hosts
+          echo "StrictHostKeyChecking accept-new" >> ~/.ssh/config
+          chmod 600 ~/.ssh/config
 
       - name: Deploy ausführen
         if: steps.cfg.outputs.ready == 'true'
