@@ -2,8 +2,8 @@
 /**
  * Plugin Name:       Ops Cockpit Reporter
  * Plugin URI:        https://dashboard.deineagentur.at
- * Description:        Read-only Telemetrie-Reporter. Sendet 2x täglich einen signierten, ausgehenden Statusbericht (Versionen, Plugins, Themes, Fingerprint-Signale) an das zentrale Ops-Cockpit. Nimmt KEINE eingehenden Befehle entgegen.
- * Version:           1.0.0
+ * Description:        Read-only Telemetrie-Reporter. Sendet 2x täglich einen signierten, ausgehenden Statusbericht (Versionen, Plugins, Themes, Fingerprint-Signale) an das zentrale Ops-Cockpit. Nimmt KEINE eingehenden Befehle entgegen. Konfiguration & Verbindungstest im Backend unter Einstellungen → Ops Cockpit Reporter.
+ * Version:           1.1.0
  * Requires at least: 5.5
  * Requires PHP:      7.4
  * Author:            Deine Agentur
@@ -33,7 +33,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Direktaufruf verhindern.
 }
 
-define( 'OPS_REPORTER_VERSION', '1.0.0' );
+define( 'OPS_REPORTER_VERSION', '1.1.0' );
 define( 'OPS_REPORTER_CRON_HOOK', 'ops_reporter_send_report' );
 define( 'OPS_REPORTER_SCHEDULE', 'ops_twicedaily' );
 
@@ -351,42 +351,62 @@ function ops_reporter_third_party_hints( array $active_slugs ) {
  * ---------------------------------------------------------------------- */
 
 /**
+ * Konfiguration auflösen. Reihenfolge: Konstanten (wp-config.php / mu-plugin) haben
+ * Vorrang vor den im Backend gespeicherten Optionen. So bleibt der sichere Weg
+ * (Secret in wp-config.php) möglich, während die Backend-Eingabe den bequemen Weg bietet.
+ *
+ * @return array{endpoint:string,site_id:string,secret:string,from_constants:bool}
+ */
+function ops_reporter_get_config() {
+	$from_constants = defined( 'OPS_REPORTER_ENDPOINT' ) || defined( 'OPS_REPORTER_SITE_ID' ) || defined( 'OPS_REPORTER_SECRET' );
+
+	return array(
+		'endpoint'       => defined( 'OPS_REPORTER_ENDPOINT' ) ? OPS_REPORTER_ENDPOINT : (string) get_option( 'ops_reporter_endpoint', '' ),
+		'site_id'        => defined( 'OPS_REPORTER_SITE_ID' )  ? OPS_REPORTER_SITE_ID  : (string) get_option( 'ops_reporter_site_id', '' ),
+		'secret'         => defined( 'OPS_REPORTER_SECRET' )   ? OPS_REPORTER_SECRET   : (string) get_option( 'ops_reporter_secret', '' ),
+		'from_constants' => $from_constants,
+	);
+}
+
+/**
  * Hauptlauf: sammeln, signieren, pushen.
  *
  * @return array{ok:bool,message:string,code?:int}
  */
 function ops_reporter_run() {
-	if ( ! defined( 'OPS_REPORTER_ENDPOINT' ) || ! defined( 'OPS_REPORTER_SITE_ID' ) || ! defined( 'OPS_REPORTER_SECRET' ) ) {
-		return ops_reporter_log_result( false, 'Konfiguration fehlt: OPS_REPORTER_ENDPOINT / _SITE_ID / _SECRET in wp-config.php definieren.' );
+	$cfg = ops_reporter_get_config();
+
+	if ( '' === $cfg['endpoint'] || '' === $cfg['site_id'] || '' === $cfg['secret'] ) {
+		return ops_reporter_log_result( false, 'Konfiguration unvollständig: Endpoint, Site-ID und Secret setzen (Einstellungen → Ops Cockpit Reporter, oder in wp-config.php).' );
 	}
 
 	$report = ops_reporter_collect();
 
 	$payload = array(
-		'site_id'      => OPS_REPORTER_SITE_ID,
-		'sent_at'      => time(),                 // Unix-Timestamp (UTC) für Replay-Fenster
-		'nonce'        => wp_generate_password( 24, false, false ),
-		'report'       => $report,
+		'site_id' => $cfg['site_id'],
+		'sent_at' => time(),                 // Unix-Timestamp (UTC) für Replay-Fenster
+		'nonce'   => wp_generate_password( 24, false, false ),
+		'report'  => $report,
 	);
 
 	$body      = wp_json_encode( $payload );
 	$timestamp = (string) $payload['sent_at'];
-	$signature = hash_hmac( 'sha256', $timestamp . '.' . $body, OPS_REPORTER_SECRET );
+	$signature = hash_hmac( 'sha256', $timestamp . '.' . $body, $cfg['secret'] );
 
 	$response = wp_remote_post(
-		OPS_REPORTER_ENDPOINT,
+		$cfg['endpoint'],
 		array(
 			'timeout'     => 20,
 			'redirection' => 0,
 			'sslverify'   => true, // NIEMALS abschalten
 			'blocking'    => true,
 			'headers'     => array(
-				'Content-Type'       => 'application/json',
-				'X-Ops-Site'         => OPS_REPORTER_SITE_ID,
-				'X-Ops-Timestamp'    => $timestamp,
-				'X-Ops-Signature'    => $signature,
-				'X-Ops-Reporter'     => OPS_REPORTER_VERSION,
-				'User-Agent'         => 'OpsReporter/' . OPS_REPORTER_VERSION,
+				'Content-Type'    => 'application/json',
+				'X-Ops-Site'      => $cfg['site_id'],
+				'X-Ops-Timestamp' => $timestamp,
+				'X-Ops-Signature' => $signature,
+				'X-Ops-Reporter'  => OPS_REPORTER_VERSION,
+				'User-Agent'      => 'OpsReporter/' . OPS_REPORTER_VERSION,
 			),
 			'body'        => $body,
 		)
@@ -441,13 +461,131 @@ add_action( 'admin_notices', function () {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
-	$configured = defined( 'OPS_REPORTER_ENDPOINT' ) && defined( 'OPS_REPORTER_SITE_ID' ) && defined( 'OPS_REPORTER_SECRET' );
+	$cfg        = ops_reporter_get_config();
+	$configured = '' !== $cfg['endpoint'] && '' !== $cfg['site_id'] && '' !== $cfg['secret'];
+	$url        = esc_url( admin_url( 'options-general.php?page=ops-reporter' ) );
+
 	if ( ! $configured ) {
-		echo '<div class="notice notice-warning"><p><strong>Ops Cockpit Reporter:</strong> Konfiguration unvollständig. Bitte <code>OPS_REPORTER_ENDPOINT</code>, <code>OPS_REPORTER_SITE_ID</code> und <code>OPS_REPORTER_SECRET</code> in <code>wp-config.php</code> setzen.</p></div>';
+		echo '<div class="notice notice-warning"><p><strong>Ops Cockpit Reporter:</strong> Konfiguration unvollständig. Bitte unter <a href="' . $url . '">Einstellungen → Ops Cockpit Reporter</a> Endpoint, Site-ID und Secret eintragen.</p></div>';
 		return;
 	}
 	$last = get_option( 'ops_reporter_last_result' );
 	if ( is_array( $last ) && empty( $last['ok'] ) ) {
-		echo '<div class="notice notice-error"><p><strong>Ops Cockpit Reporter:</strong> Letzter Bericht fehlgeschlagen – ' . esc_html( $last['message'] ) . '</p></div>';
+		echo '<div class="notice notice-error"><p><strong>Ops Cockpit Reporter:</strong> Letzter Bericht fehlgeschlagen – ' . esc_html( $last['message'] ) . ' (<a href="' . $url . '">Einstellungen</a>)</p></div>';
 	}
 } );
+
+/* -------------------------------------------------------------------------
+ *  Einstellungsseite (Einstellungen → Ops Cockpit Reporter) + Verbindungstest
+ * ---------------------------------------------------------------------- */
+
+add_action( 'admin_menu', function () {
+	add_options_page(
+		'Ops Cockpit Reporter',
+		'Ops Cockpit Reporter',
+		'manage_options',
+		'ops-reporter',
+		'ops_reporter_render_settings_page'
+	);
+} );
+
+/**
+ * Rendert die Einstellungsseite und verarbeitet Speichern + Verbindungstest.
+ * Sicherheit: Capability-Check, Nonce, Sanitization der Eingaben, Escaping der Ausgaben.
+ * Das Secret wird nie zurück ins Feld geschrieben (write-only).
+ */
+function ops_reporter_render_settings_page() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+
+	$notice = '';
+	$cfg    = ops_reporter_get_config();
+
+	if ( isset( $_POST['ops_reporter_action'] ) && check_admin_referer( 'ops_reporter_settings' ) ) {
+		$action = sanitize_text_field( wp_unslash( $_POST['ops_reporter_action'] ) );
+
+		// Speichern nur, wenn nicht über Konstanten vorgegeben.
+		if ( ! $cfg['from_constants'] ) {
+			update_option( 'ops_reporter_endpoint', esc_url_raw( wp_unslash( $_POST['ops_reporter_endpoint'] ?? '' ) ) );
+			update_option( 'ops_reporter_site_id', sanitize_text_field( wp_unslash( $_POST['ops_reporter_site_id'] ?? '' ) ) );
+
+			$secret_in = trim( (string) wp_unslash( $_POST['ops_reporter_secret'] ?? '' ) );
+			if ( '' !== $secret_in ) {
+				update_option( 'ops_reporter_secret', $secret_in );
+			}
+			$cfg = ops_reporter_get_config();
+		}
+
+		if ( 'test' === $action ) {
+			$res = ops_reporter_run();
+			$notice = $res['ok']
+				? '<div class="notice notice-success is-dismissible"><p><strong>Test erfolgreich:</strong> ' . esc_html( $res['message'] ) . ( isset( $res['code'] ) ? ' (HTTP ' . (int) $res['code'] . ')' : '' ) . '</p></div>'
+				: '<div class="notice notice-error is-dismissible"><p><strong>Test fehlgeschlagen:</strong> ' . esc_html( $res['message'] ) . '</p></div>';
+		} else {
+			$notice = '<div class="notice notice-success is-dismissible"><p>Einstellungen gespeichert.</p></div>';
+		}
+	}
+
+	$endpoint   = $cfg['endpoint'];
+	$site_id    = $cfg['site_id'];
+	$has_secret = '' !== $cfg['secret'];
+	$locked     = $cfg['from_constants'];
+	?>
+	<div class="wrap">
+		<h1>Ops Cockpit Reporter</h1>
+		<p>Verbindet diese Website read-only mit dem zentralen Ops Cockpit. Trage Endpoint, Site-ID und Secret aus dem Cockpit ein und teste die Verbindung.</p>
+		<?php echo $notice; // bereits escaped ?>
+		<?php if ( $locked ) : ?>
+			<div class="notice notice-info inline"><p>Die Konfiguration wird über <code>wp-config.php</code> (oder ein mu-plugin) vorgegeben und ist hier schreibgeschützt. Der Verbindungstest funktioniert trotzdem.</p></div>
+		<?php endif; ?>
+		<form method="post">
+			<?php wp_nonce_field( 'ops_reporter_settings' ); ?>
+			<table class="form-table" role="presentation">
+				<tr>
+					<th scope="row"><label for="ops_reporter_endpoint">Cockpit-Endpoint</label></th>
+					<td>
+						<input name="ops_reporter_endpoint" id="ops_reporter_endpoint" type="url" class="regular-text" value="<?php echo esc_attr( $endpoint ); ?>" placeholder="https://webmonitor.hammerer.at/api/ingest" <?php disabled( $locked ); ?>>
+						<p class="description">Die Ingest-URL deines Cockpits (endet auf <code>/api/ingest</code>).</p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="ops_reporter_site_id">Site-ID</label></th>
+					<td>
+						<input name="ops_reporter_site_id" id="ops_reporter_site_id" type="text" class="regular-text" value="<?php echo esc_attr( $site_id ); ?>" placeholder="z. B. dev-vorlage" <?php disabled( $locked ); ?>>
+						<p class="description">Muss exakt der Site-ID im Cockpit entsprechen.</p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="ops_reporter_secret">Secret</label></th>
+					<td>
+						<input name="ops_reporter_secret" id="ops_reporter_secret" type="password" class="regular-text" autocomplete="new-password" placeholder="<?php echo $has_secret ? '•••••••• (unverändert lassen)' : 'Secret aus dem Cockpit einfügen'; ?>" <?php disabled( $locked ); ?>>
+						<p class="description"><?php echo $has_secret ? 'Ein Secret ist gespeichert. Feld leer lassen, um es zu behalten.' : 'Noch kein Secret gespeichert.'; ?></p>
+					</td>
+				</tr>
+			</table>
+			<p class="submit">
+				<?php if ( ! $locked ) : ?>
+					<button type="submit" name="ops_reporter_action" value="save" class="button button-primary">Speichern</button>
+					<button type="submit" name="ops_reporter_action" value="test" class="button button-secondary">Speichern &amp; Verbindung testen</button>
+				<?php else : ?>
+					<button type="submit" name="ops_reporter_action" value="test" class="button button-primary">Verbindung testen</button>
+				<?php endif; ?>
+			</p>
+		</form>
+		<?php
+		$last = get_option( 'ops_reporter_last_result' );
+		if ( is_array( $last ) ) :
+			?>
+			<h2>Letzter Lauf</h2>
+			<p>
+				<?php echo ! empty( $last['ok'] ) ? '✅' : '❌'; ?>
+				<?php echo esc_html( (string) ( $last['message'] ?? '' ) ); ?>
+				<?php if ( ! empty( $last['time'] ) ) : ?>
+					<em>(<?php echo esc_html( (string) $last['time'] ); ?> UTC)</em>
+				<?php endif; ?>
+			</p>
+		<?php endif; ?>
+	</div>
+	<?php
+}
