@@ -6,6 +6,7 @@ use App\Filament\Widgets\CockpitStatsOverview;
 use App\Filament\Widgets\NeedsActionTable;
 use App\Filament\Widgets\OpenTasksByTypeChart;
 use App\Filament\Widgets\SiteStatusChart;
+use App\Filament\Widgets\UpcomingExpiriesTable;
 use Filament\Enums\ThemeMode;
 use Filament\Support\Enums\MaxWidth;
 use Filament\Http\Middleware\Authenticate;
@@ -57,6 +58,7 @@ class AdminPanelProvider extends PanelProvider
                 NeedsActionTable::class,
                 SiteStatusChart::class,
                 OpenTasksByTypeChart::class,
+                UpcomingExpiriesTable::class,
             ])
             ->middleware([
                 EncryptCookies::class,
