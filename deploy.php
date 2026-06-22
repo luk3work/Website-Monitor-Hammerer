@@ -61,6 +61,12 @@ task('mittwald:domain')->disable();
  */
 after('deploy:symlink', 'artisan:migrate');
 
+// Initialen Admin-Benutzer nach der Migration sicherstellen (idempotent).
+task('artisan:seed:admin', function () {
+    run('cd {{release_path}} && {{bin/php}} artisan db:seed --class=AdminUserSeeder --force');
+})->desc('Admin-Benutzer anlegen/aktualisieren');
+after('artisan:migrate', 'artisan:seed:admin');
+
 // Bei Fehler: Lock lösen, damit der nächste Lauf nicht blockiert.
 after('deploy:failed', 'deploy:unlock');
 

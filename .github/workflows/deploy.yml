@@ -78,13 +78,14 @@ jobs:
         env:
           APP_KEY: ${{ secrets.APP_KEY }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
         run: |
           cat > .env.deploy <<EOF
           APP_NAME="Ops Cockpit"
           APP_ENV=production
           APP_KEY=${APP_KEY}
           APP_DEBUG=false
-          APP_URL=https://p-hpa9jh.project.space
+          APP_URL=https://webmonitor.hammerer.at
           LOG_CHANNEL=stack
           LOG_LEVEL=error
           DB_CONNECTION=mysql
@@ -96,6 +97,9 @@ jobs:
           SESSION_DRIVER=database
           CACHE_STORE=database
           QUEUE_CONNECTION=database
+          ADMIN_NAME="Lukas Wagner"
+          ADMIN_EMAIL=wagner@hammerer.at
+          ADMIN_PASSWORD=${ADMIN_PASSWORD}
           EOF
 
       - name: Deploy ausführen
