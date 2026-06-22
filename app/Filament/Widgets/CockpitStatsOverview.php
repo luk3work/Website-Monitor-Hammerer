@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Enums\SiteStatus;
+use App\Filament\Resources\SiteResource;
 use App\Models\Site;
 use App\Models\Task;
 use Filament\Widgets\StatsOverviewWidget;
@@ -46,22 +47,28 @@ class CockpitStatsOverview extends StatsOverviewWidget
             Stat::make('Sites online', "{$online} / {$total}")
                 ->description($offline > 0 ? "{$offline} offline" : 'alle erreichbar')
                 ->color($offline > 0 ? 'danger' : 'success')
-                ->icon('heroicon-o-signal'),
+                ->icon('heroicon-o-signal')
+                ->url($offline > 0
+                    ? SiteResource::getUrl('index', ['tableFilters' => ['status' => ['value' => SiteStatus::Offline->value]]])
+                    : SiteResource::getUrl('index')),
 
             Stat::make('Ausstehende Updates', (string) $updates)
                 ->description('Core, Plugins & Themes')
                 ->color($updates > 0 ? 'warning' : 'success')
-                ->icon('heroicon-o-arrow-up-circle'),
+                ->icon('heroicon-o-arrow-up-circle')
+                ->url(SiteResource::getUrl('index', ['tableFilters' => ['pending_updates' => ['value' => true]]])),
 
             Stat::make('SSL läuft bald ab', (string) $sslSoon)
                 ->description('≤ 21 Tage')
                 ->color($sslSoon > 0 ? 'warning' : 'gray')
-                ->icon('heroicon-o-lock-closed'),
+                ->icon('heroicon-o-lock-closed')
+                ->url(SiteResource::getUrl('index')),
 
             Stat::make('Domains laufen bald ab', (string) $domainSoon)
                 ->description('≤ 30 Tage')
                 ->color($domainSoon > 0 ? 'warning' : 'gray')
-                ->icon('heroicon-o-globe-alt'),
+                ->icon('heroicon-o-globe-alt')
+                ->url(SiteResource::getUrl('index')),
 
             Stat::make('Kritische Aufgaben', (string) $openCritical)
                 ->description($openCritical > 0 ? 'sofort handeln' : 'nichts Dringendes')

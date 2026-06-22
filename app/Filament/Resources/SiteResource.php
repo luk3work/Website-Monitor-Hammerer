@@ -192,12 +192,23 @@ class SiteResource extends Resource
             ])
             // Standardmäßig keine archivierten Sites.
             ->modifyQueryUsing(fn ($query) => $query->where('is_archived', false))
+            ->striped()
+            // Klick auf die Zeile öffnet die Detailansicht.
+            ->recordUrl(fn (Site $record) => static::getUrl('view', ['record' => $record]))
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    // Offboarding: archivieren statt löschen (Ingest weist die Site danach ab).
+                    Tables\Actions\BulkAction::make('archive')
+                        ->label('Archivieren')
+                        ->icon('heroicon-m-archive-box')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->action(fn ($records) => $records->each->update(['is_archived' => true]))
+                        ->deselectRecordsAfterCompletion(),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
