@@ -67,6 +67,12 @@ task('artisan:seed:admin', function () {
 })->desc('Admin-Benutzer anlegen/aktualisieren');
 after('artisan:migrate', 'artisan:seed:admin');
 
+// Paketkatalog idempotent pflegen (hält die packages-Tabelle aktuell).
+task('artisan:seed:packages', function () {
+    run('cd {{release_path}} && {{bin/php}} artisan db:seed --class=PackageSeeder --force');
+})->desc('Paketkatalog aktualisieren');
+after('artisan:seed:admin', 'artisan:seed:packages');
+
 // Optional: Demo-Daten einspielen. Läuft nur, wenn der Deploy mit
 // -o run_demo_seed=true gestartet wurde (manueller Workflow-Trigger).
 task('artisan:seed:demo', function () {

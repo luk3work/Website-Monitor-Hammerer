@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\SiteStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -66,6 +67,14 @@ class Site extends Model
     public function documents(): HasMany
     {
         return $this->hasMany(Document::class);
+    }
+
+    /** Gebuchte/abgewählte Websitepakete (Pivot-Zustand: booked|declined). */
+    public function packages(): BelongsToMany
+    {
+        return $this->belongsToMany(Package::class, 'site_packages')
+            ->withPivot(['state', 'note'])
+            ->withTimestamps();
     }
 
     /* -------- Helfer -------- */

@@ -217,6 +217,7 @@ class SiteResource extends Resource
     public static function getRelations(): array
     {
         return [
+            RelationManagers\PackagesRelationManager::class,
             RelationManagers\PluginsRelationManager::class,
             RelationManagers\TasksRelationManager::class,
         ];
