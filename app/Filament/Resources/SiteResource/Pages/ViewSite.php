@@ -10,6 +10,7 @@ use Filament\Infolists\Components\Group;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ViewEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Pages\ViewRecord;
 
@@ -86,6 +87,14 @@ class ViewSite extends ViewRecord
 
                 // ---- Rechte Spalte: das Wesentliche auf einen Blick ----
                 Group::make([
+                    Section::make('Vorschau')
+                        ->icon('heroicon-o-eye')
+                        ->schema([
+                            ViewEntry::make('preview')
+                                ->hiddenLabel()
+                                ->view('filament.infolists.site-preview'),
+                        ]),
+
                     Section::make('Pakete')
                         ->icon('heroicon-o-cube')
                         ->schema([

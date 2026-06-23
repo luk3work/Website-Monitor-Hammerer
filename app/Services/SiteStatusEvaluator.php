@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\SiteStatus;
+use App\Models\Setting;
 use App\Models\Site;
 
 /**
@@ -22,6 +23,15 @@ class SiteStatusEvaluator
     private int $sslWarnDays = 21;
     private int $domainWarnDays = 30;
     private int $licenseWarnDays = 30;
+
+    /** Schwellenwerte aus den zentralen Einstellungen lesen (mit sicheren Defaults). */
+    public function __construct()
+    {
+        $this->offlineAfterHours = (int) rescue(fn () => Setting::get('offline_after_hours', 26), 26, false);
+        $this->sslWarnDays       = (int) rescue(fn () => Setting::get('ssl_warn_days', 21), 21, false);
+        $this->domainWarnDays    = (int) rescue(fn () => Setting::get('domain_warn_days', 30), 30, false);
+        $this->licenseWarnDays   = (int) rescue(fn () => Setting::get('license_warn_days', 30), 30, false);
+    }
 
     public function evaluate(Site $site): SiteStatus
     {
