@@ -1,0 +1,119 @@
+/* =========================================================================
+   Ops Cockpit – visueller Feinschliff (Apple/Notion-inspiriert)
+   Statisches Stylesheet, per Render-Hook ins Panel eingehängt.
+   Zielt auf stabile Filament-"fi-"-Klassen. Rein optisch, keine Logik.
+   ========================================================================= */
+
+:root {
+    --oc-radius: 14px;
+    --oc-radius-sm: 10px;
+}
+
+/* ---- Typografie & Grundton ------------------------------------------------ */
+.fi-body {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    letter-spacing: -0.011em;
+}
+
+/* Klare Seiten-Hierarchie */
+.fi-header-heading {
+    font-weight: 700;
+    letter-spacing: -0.022em;
+}
+.fi-header-subheading {
+    opacity: 0.7;
+}
+
+/* Section-Überschriften ruhiger, Beschreibungen gedämpft */
+.fi-section-header-heading {
+    font-weight: 600;
+    letter-spacing: -0.012em;
+}
+.fi-section-header-description {
+    opacity: 0.65;
+}
+
+/* ---- Flächen: weicher, ruhiger ------------------------------------------- */
+.fi-section,
+.fi-wi-stats-overview-stat,
+.fi-ta-ctn,
+.fi-fo-component-ctn .fi-section,
+.fi-modal-window {
+    border-radius: var(--oc-radius) !important;
+}
+
+.fi-section {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+/* ---- KPI-Kacheln: edler, mit dezentem Hover ------------------------------ */
+.fi-wi-stats-overview-stat {
+    transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+.fi-wi-stats-overview-stat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+.fi-wi-stats-overview-stat-value {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+.fi-wi-stats-overview-stat-label {
+    opacity: 0.75;
+}
+
+/* ---- Sidebar: mehr Ruhe & klare Gruppen ---------------------------------- */
+.fi-sidebar-group-label {
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-size: 0.68rem;
+    font-weight: 600;
+    opacity: 0.5;
+}
+.fi-sidebar-item-button {
+    border-radius: var(--oc-radius-sm);
+    transition: background-color 0.15s ease;
+}
+.fi-sidebar-item.fi-active .fi-sidebar-item-button {
+    font-weight: 600;
+}
+.fi-sidebar .fi-logo {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+/* ---- Tabellen: aufgeräumter --------------------------------------------- */
+.fi-ta-header-cell {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.7rem;
+    opacity: 0.7;
+}
+.fi-ta-row {
+    transition: background-color 0.12s ease;
+}
+
+/* ---- Buttons & Badges: feiner ------------------------------------------- */
+.fi-btn {
+    border-radius: var(--oc-radius-sm);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+.fi-badge {
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+/* ---- Topbar: ruhiger ----------------------------------------------------- */
+.fi-topbar {
+    backdrop-filter: saturate(140%) blur(6px);
+}
+
+/* ---- Mehr Atemraum auf der Seite ---------------------------------------- */
+.fi-main {
+    padding-top: 1.5rem;
+}
+.fi-page > * + * {
+    margin-top: 1.25rem;
+}

@@ -16,6 +16,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -44,6 +45,13 @@ class AdminPanelProvider extends PanelProvider
                 'danger'  => Color::Rose,
             ])
             ->brandName('Ops Cockpit')
+            // Ruhige, moderne Typografie.
+            ->font('Inter')
+            // Eigener Feinschliff (Apple/Notion-inspiriert) als statisches Stylesheet.
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn (): string => '<link rel="stylesheet" href="' . asset('css/ops-cockpit.css') . '">',
+            )
             // Cockpit-Charakter: volle Breite, einklappbare Sidebar, gruppierte Navigation, SPA.
             ->maxContentWidth(MaxWidth::Full)
             ->sidebarCollapsibleOnDesktop()
