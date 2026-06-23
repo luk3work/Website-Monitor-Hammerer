@@ -30,7 +30,12 @@ class PluginsRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->defaultSort('update_available', 'desc')
             ->columns([
-                Tables\Columns\TextColumn::make('name')->label('Plugin')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('name')->label('Plugin')
+                    ->description(fn ($record) => $record->slug)
+                    ->url(fn ($record) => $record->plugin_uri ?: null, true)
+                    ->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('author')->label('Author')
+                    ->placeholder('–')->searchable()->toggleable()->wrap()->limit(40),
                 Tables\Columns\IconColumn::make('active')->label('Aktiv')->boolean(),
                 Tables\Columns\TextColumn::make('version')->label('Version'),
                 Tables\Columns\TextColumn::make('update_version')

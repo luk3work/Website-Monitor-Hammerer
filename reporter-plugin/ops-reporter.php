@@ -33,7 +33,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Direktaufruf verhindern.
 }
 
-define( 'OPS_REPORTER_VERSION', '1.1.0' );
+define( 'OPS_REPORTER_VERSION', '1.2.0' );
 define( 'OPS_REPORTER_CRON_HOOK', 'ops_reporter_send_report' );
 define( 'OPS_REPORTER_SCHEDULE', 'ops_twicedaily' );
 
@@ -154,6 +154,8 @@ function ops_reporter_plugins_info() {
 			'file'             => $file,
 			'name'             => isset( $data['Name'] ) ? $data['Name'] : $file,
 			'version'          => isset( $data['Version'] ) ? $data['Version'] : null,
+			'author'           => isset( $data['Author'] ) ? wp_strip_all_tags( $data['Author'] ) : null,
+			'plugin_uri'       => isset( $data['PluginURI'] ) && $data['PluginURI'] ? $data['PluginURI'] : null,
 			'active'           => in_array( $file, $active, true ) || ( is_multisite() && is_plugin_active_for_network( $file ) ),
 			'update_available' => null !== $update_to,
 			'update_version'   => $update_to,

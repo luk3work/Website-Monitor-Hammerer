@@ -96,6 +96,8 @@ class SnapshotIngestor
                 ['slug' => $slug],
                 [
                     'name'             => $p['name'] ?? null,
+                    'author'           => $p['author'] ?? null,
+                    'plugin_uri'       => $p['plugin_uri'] ?? null,
                     'version'          => $p['version'] ?? null,
                     'active'           => (bool) ($p['active'] ?? false),
                     'update_available' => (bool) ($p['update_available'] ?? false),
