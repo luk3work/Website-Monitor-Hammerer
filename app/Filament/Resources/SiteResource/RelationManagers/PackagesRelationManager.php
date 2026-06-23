@@ -27,6 +27,18 @@ class PackagesRelationManager extends RelationManager
         'declined' => 'Abgewählt',
     ];
 
+    private const GROUP_LABELS = [
+        'hosting_tier' => 'Hosting',
+        'addon'        => 'Zusatzpakete',
+        'update'       => 'Update-Service',
+        'seo'          => 'SEO',
+        'performance'  => 'Performance',
+        'datenschutz'  => 'Datenschutz',
+        'security'     => 'Sicherheit',
+        'a11y'         => 'Barrierefreiheit',
+        'reporting'    => 'Reporting',
+    ];
+
     /** Formular für Bearbeiten des Pivot-Zustands. */
     public function form(Form $form): Form
     {
@@ -48,7 +60,11 @@ class PackagesRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('name')
-            ->defaultGroup('group')
+            ->defaultGroup(
+                \Filament\Tables\Grouping\Group::make('group')
+                    ->label('Gruppe')
+                    ->getTitleFromRecordUsing(fn (Package $record) => self::GROUP_LABELS[$record->group] ?? $record->group)
+            )
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('Paket')
