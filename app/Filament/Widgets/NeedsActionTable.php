@@ -17,7 +17,7 @@ class NeedsActionTable extends BaseWidget
 {
     protected static ?int $sort = 2;
 
-    protected int|string|array $columnSpan = 'full';
+    protected int|string|array $columnSpan = ['default' => 'full', 'lg' => 4];
 
     protected static ?string $heading = 'Braucht Handlung';
 

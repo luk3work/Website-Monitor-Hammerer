@@ -14,11 +14,11 @@ class OpenTasksByTypeChart extends ChartWidget
 {
     protected static ?string $heading = 'Offene Aufgaben nach Typ';
 
-    protected static ?int $sort = 4;
+    protected static ?int $sort = 5;
 
-    protected int|string|array $columnSpan = 1;
+    protected int|string|array $columnSpan = ['default' => 'full', 'lg' => 3];
 
-    protected static ?string $maxHeight = '260px';
+    protected static ?string $maxHeight = '240px';
 
     /** Technische Typen -> verständliche deutsche Labels. */
     private const LABELS = [

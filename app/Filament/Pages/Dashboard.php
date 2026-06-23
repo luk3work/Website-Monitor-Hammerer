@@ -28,7 +28,8 @@ class Dashboard extends BaseDashboard
 
     public function getColumns(): int|array
     {
-        return 2;
+        // 6-Spalten-Raster für ein klares, ausgewogenes Cockpit-Layout.
+        return ['default' => 1, 'md' => 2, 'lg' => 6];
     }
 
     public function getWidgets(): array

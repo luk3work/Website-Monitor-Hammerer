@@ -14,9 +14,9 @@ use Filament\Widgets\TableWidget as BaseWidget;
  */
 class UpcomingExpiriesTable extends BaseWidget
 {
-    protected static ?int $sort = 5;
+    protected static ?int $sort = 4;
 
-    protected int|string|array $columnSpan = 'full';
+    protected int|string|array $columnSpan = ['default' => 'full', 'lg' => 3];
 
     protected static ?string $heading = 'Ablauf-Vorschau (SSL & Domain, 90 Tage)';
 

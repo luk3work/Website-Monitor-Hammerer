@@ -16,9 +16,9 @@ class SiteStatusChart extends ChartWidget
 
     protected static ?int $sort = 3;
 
-    protected int|string|array $columnSpan = 1;
+    protected int|string|array $columnSpan = ['default' => 'full', 'lg' => 2];
 
-    protected static ?string $maxHeight = '260px';
+    protected static ?string $maxHeight = '240px';
 
     /** Feste Farbzuordnung passend zur Ampel-Logik. */
     private const COLORS = [

@@ -1,17 +1,25 @@
 /* =========================================================================
-   Ops Cockpit – Design-System (dunkel & edel, Apple/Notion-inspiriert)
+   Ops Cockpit – SaaS Design-System (dunkel, edel, ruhig)
    Statisches Stylesheet, per Render-Hook ins Panel eingehängt.
    Zielt auf stabile Filament-"fi-"-Klassen. Rein optisch, keine Logik.
+   Referenz-Anmutung: Linear / Vercel / Planetscale.
    ========================================================================= */
 
 :root {
     --oc-radius: 16px;
     --oc-radius-md: 12px;
     --oc-radius-sm: 9px;
-    --oc-ring: rgba(255, 255, 255, 0.06);
-    --oc-ring-strong: rgba(255, 255, 255, 0.10);
-    --oc-shadow: 0 1px 2px rgba(0, 0, 0, 0.20), 0 8px 24px rgba(0, 0, 0, 0.18);
-    --oc-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.18);
+
+    --oc-bg: #0a0b0f;
+    --oc-bg-elev: #0e1017;
+    --oc-surface: #12141c;
+    --oc-surface-2: #161924;
+    --oc-line: rgba(255, 255, 255, 0.07);
+    --oc-line-strong: rgba(255, 255, 255, 0.12);
+    --oc-text-dim: rgba(255, 255, 255, 0.62);
+
+    --oc-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
+    --oc-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 10px 30px rgba(0, 0, 0, 0.22);
 }
 
 /* ---- Grundton & Typografie ---------------------------------------------- */
@@ -21,78 +29,62 @@
     text-rendering: optimizeLegibility;
     letter-spacing: -0.011em;
 }
-
-/* Tiefer, ruhiger Hintergrund im Dark-Mode */
 .dark .fi-body,
-.dark .fi-main-ctn {
-    background-color: #0b0d12;
+.dark .fi-main-ctn,
+.dark .fi-layout {
+    background-color: var(--oc-bg);
 }
 
 .fi-header-heading {
     font-weight: 700;
     letter-spacing: -0.025em;
-    font-size: 1.6rem;
+    font-size: 1.55rem;
 }
-.fi-header-subheading {
-    opacity: 0.65;
-}
-.fi-section-header-heading {
-    font-weight: 600;
-    letter-spacing: -0.012em;
-}
-.fi-section-header-description {
-    opacity: 0.6;
-}
+.fi-header-subheading { color: var(--oc-text-dim); }
+.fi-section-header-heading { font-weight: 600; letter-spacing: -0.012em; }
+.fi-section-header-description { color: var(--oc-text-dim); }
+.fi-breadcrumbs { opacity: 0.65; font-size: 0.78rem; }
 
-/* ---- Sidebar: eigene Fläche, klare Gruppen, ruhige Items ----------------- */
+/* ---- Sidebar: eigene, ruhige Fläche ------------------------------------- */
 .dark .fi-sidebar {
-    background-color: #0e1118;
-    border-right: 1px solid var(--oc-ring);
+    background-color: var(--oc-bg-elev);
+    border-right: 1px solid var(--oc-line);
 }
-.fi-sidebar-header {
-    border-bottom: 1px solid var(--oc-ring);
-}
-.fi-sidebar .fi-logo {
-    font-weight: 700;
-    letter-spacing: -0.02em;
-}
-.fi-sidebar-nav {
-    padding: 0.75rem 0.6rem;
-    gap: 0.15rem;
-}
-.fi-sidebar-group + .fi-sidebar-group {
-    margin-top: 1.1rem;
-}
+.fi-sidebar-header { border-bottom: 1px solid var(--oc-line); height: auto; }
+.fi-sidebar .fi-logo { font-weight: 700; letter-spacing: -0.02em; }
+.fi-sidebar-nav { padding: 0.85rem 0.6rem; gap: 0.12rem; }
+.fi-sidebar-group + .fi-sidebar-group { margin-top: 1.15rem; }
 .fi-sidebar-group-label {
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-size: 0.66rem;
+    letter-spacing: 0.09em;
+    font-size: 0.64rem;
     font-weight: 700;
-    opacity: 0.45;
-    padding-left: 0.65rem;
+    opacity: 0.42;
+    padding-left: 0.7rem;
+    margin-bottom: 0.25rem;
 }
 .fi-sidebar-item-button {
     border-radius: var(--oc-radius-sm);
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
+    padding: 0.5rem 0.7rem;
     transition: background-color 0.15s ease, color 0.15s ease;
+    font-weight: 500;
 }
-.dark .fi-sidebar-item-button:hover {
-    background-color: rgba(255, 255, 255, 0.04);
-}
+.dark .fi-sidebar-item-button:hover { background-color: rgba(255, 255, 255, 0.045); }
 .dark .fi-sidebar-item.fi-active .fi-sidebar-item-button {
-    background-color: rgba(56, 189, 248, 0.12);
+    background-color: rgba(56, 189, 248, 0.13);
+    color: #e0f2fe;
     font-weight: 600;
 }
+.dark .fi-sidebar-item.fi-active .fi-sidebar-item-icon { color: #38bdf8; }
 
-/* ---- Topbar: ruhig, leicht abgesetzt ------------------------------------ */
+/* ---- Topbar ------------------------------------------------------------- */
 .dark .fi-topbar > nav {
-    background-color: rgba(11, 13, 18, 0.72);
+    background-color: rgba(10, 11, 15, 0.72);
     backdrop-filter: saturate(140%) blur(10px);
-    border-bottom: 1px solid var(--oc-ring);
+    border-bottom: 1px solid var(--oc-line);
 }
 
-/* ---- Sektionen / Karten: gleiches edles Vokabular ----------------------- */
+/* ---- Sektionen / Karten ------------------------------------------------- */
 .fi-section,
 .fi-wi-stats-overview-stat,
 .fi-ta-ctn,
@@ -100,90 +92,69 @@
     border-radius: var(--oc-radius) !important;
 }
 .fi-section {
+    border: 1px solid var(--oc-line);
     box-shadow: var(--oc-shadow-sm);
-    border: 1px solid var(--oc-ring);
 }
-.dark .fi-section {
-    background-color: #11141c;
-}
-.fi-section-content {
-    padding: 1.35rem !important;
-}
-.fi-section-header {
-    padding: 1.15rem 1.35rem !important;
-}
+.dark .fi-section { background-color: var(--oc-surface); }
+.fi-section-content { padding: 1.4rem !important; }
+.fi-section-header { padding: 1.15rem 1.4rem !important; }
+.dark .fi-section-header { border-bottom: 1px solid var(--oc-line); }
 
-/* ---- KPI-Kacheln: premium Tiles ----------------------------------------- */
+/* ---- KPI-Tiles: klar, mit prominentem Wert ------------------------------ */
 .fi-wi-stats-overview-stat {
-    border: 1px solid var(--oc-ring);
+    border: 1px solid var(--oc-line);
     box-shadow: var(--oc-shadow-sm);
-    padding: 1.3rem 1.4rem !important;
+    padding: 1.25rem 1.35rem !important;
     transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
 }
 .dark .fi-wi-stats-overview-stat {
-    background: linear-gradient(180deg, #141821 0%, #11141c 100%);
+    background: linear-gradient(180deg, var(--oc-surface-2) 0%, var(--oc-surface) 100%);
 }
 .fi-wi-stats-overview-stat:hover {
     transform: translateY(-2px);
     box-shadow: var(--oc-shadow);
-    border-color: var(--oc-ring-strong);
+    border-color: var(--oc-line-strong);
 }
-.fi-wi-stats-overview-stat-value {
-    font-weight: 700;
-    letter-spacing: -0.025em;
-    font-size: 1.9rem;
-}
-.fi-wi-stats-overview-stat-label {
-    opacity: 0.7;
-    font-weight: 500;
-}
-.fi-wi-stats-overview-stat-description {
-    opacity: 0.6;
-}
+.fi-wi-stats-overview-stat-value { font-weight: 700; letter-spacing: -0.03em; font-size: 2rem; line-height: 1.1; }
+.fi-wi-stats-overview-stat-label { color: var(--oc-text-dim); font-weight: 500; }
+.fi-wi-stats-overview-stat-description { color: var(--oc-text-dim); font-size: 0.8rem; }
 
-/* ---- Tabellen: aufgeräumt, ruhige Header -------------------------------- */
+/* ---- Tabellen ----------------------------------------------------------- */
 .fi-ta-header-cell {
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-size: 0.68rem;
+    letter-spacing: 0.055em;
+    font-size: 0.66rem;
     font-weight: 600;
-    opacity: 0.6;
+    color: var(--oc-text-dim);
 }
-.fi-ta-row {
-    transition: background-color 0.12s ease;
-}
-.dark .fi-ta-row:hover {
-    background-color: rgba(255, 255, 255, 0.025);
-}
+.dark .fi-ta-header { background-color: var(--oc-surface-2); }
+.fi-ta-row { transition: background-color 0.12s ease; }
+.dark .fi-ta-row:hover { background-color: rgba(255, 255, 255, 0.028); }
+.fi-ta-record-checkbox-ctn + .fi-ta-cell { padding-left: 0.5rem; }
 
-/* ---- Buttons, Badges, Eingaben ------------------------------------------ */
-.fi-btn {
+/* ---- Buttons / Badges / Inputs ------------------------------------------ */
+.fi-btn { border-radius: var(--oc-radius-sm); font-weight: 600; letter-spacing: -0.01em; }
+.fi-badge { font-weight: 600; letter-spacing: 0.01em; border-radius: 9999px; padding-inline: 0.6rem; }
+.fi-input, .fi-select-input { border-radius: var(--oc-radius-sm) !important; }
+.dark .fi-input-wrp { background-color: var(--oc-bg-elev); border-radius: var(--oc-radius-sm); }
+
+/* ---- Tabs (Formulare/Seiten) -------------------------------------------- */
+.fi-tabs {
     border-radius: var(--oc-radius-sm);
-    font-weight: 600;
-    letter-spacing: -0.01em;
+    background-color: rgba(255, 255, 255, 0.03);
+    padding: 0.25rem;
+    gap: 0.15rem;
 }
-.fi-badge {
-    font-weight: 600;
-    letter-spacing: 0.01em;
-    border-radius: 9999px;
-}
-.fi-input,
-.fi-select-input,
-.fi-fo-field-wrp .fi-input-wrp {
-    border-radius: var(--oc-radius-sm) !important;
-}
+.fi-tabs-item { border-radius: var(--oc-radius-sm); font-weight: 600; }
+.dark .fi-tabs-item-active { background-color: rgba(56, 189, 248, 0.13); }
 
-/* ---- Atemraum & Rhythmus ------------------------------------------------ */
-.fi-main {
-    padding-top: 1.75rem;
-    padding-bottom: 2.5rem;
-}
-.fi-page > * + * {
-    margin-top: 1.4rem;
-}
+/* ---- Rhythmus & Atemraum ------------------------------------------------ */
+.fi-main { padding-top: 1.75rem; padding-bottom: 2.75rem; }
+.fi-page > * + * { margin-top: 1.4rem; }
+.fi-wi { gap: 1.25rem; }
 
-/* ---- Breadcrumb dezent -------------------------------------------------- */
-.fi-breadcrumbs {
-    opacity: 0.7;
-    font-size: 0.8rem;
-}
+/* ---- Dezente Scrollbars ------------------------------------------------- */
+.dark ::-webkit-scrollbar { width: 10px; height: 10px; }
+.dark ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.10); border-radius: 9999px; border: 2px solid transparent; background-clip: content-box; }
+.dark ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.18); background-clip: content-box; }
+.dark ::-webkit-scrollbar-track { background: transparent; }

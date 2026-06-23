@@ -146,8 +146,8 @@ class SiteResource extends Resource
                     ->color(fn (SiteStatus $state) => $state->color())
                     ->icon(fn (SiteStatus $state) => $state->icon()),
 
-                Tables\Columns\TextColumn::make('wp_version')->label('WP')->placeholder('–')->toggleable(),
-                Tables\Columns\TextColumn::make('php_version')->label('PHP')->placeholder('–')->toggleable(),
+                Tables\Columns\TextColumn::make('wp_version')->label('WP')->placeholder('–')->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('php_version')->label('PHP')->placeholder('–')->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('pending_updates')
                     ->label('Updates')
