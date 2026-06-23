@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Dashboard;
 use App\Filament\Widgets\CockpitStatsOverview;
 use App\Filament\Widgets\NeedsActionTable;
 use App\Filament\Widgets\OpenTasksByTypeChart;
@@ -60,6 +61,10 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            // Dediziertes Dashboard als Startseite (sonst landet man ohne klare Home-Seite).
+            ->pages([
+                Dashboard::class,
+            ])
             // Reihenfolge: KPIs -> Braucht Handlung -> Visualisierungen.
             ->widgets([
                 CockpitStatsOverview::class,

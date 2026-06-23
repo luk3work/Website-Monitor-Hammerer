@@ -35,8 +35,8 @@ class NeedsActionTable extends BaseWidget
             ->emptyStateHeading('Alles erledigt')
             ->emptyStateDescription('Keine offenen Aufgaben – schön ruhig hier.')
             ->emptyStateIcon('heroicon-o-check-circle')
-            ->paginated([10, 25, 50])
-            ->defaultPaginationPageOption(10)
+            ->paginated([5, 10, 25])
+            ->defaultPaginationPageOption(5)
             ->columns([
                 TextColumn::make('severity')
                     ->label('')
