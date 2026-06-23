@@ -2,6 +2,7 @@
 
 use App\Console\Commands\SitesExpiryScan;
 use App\Console\Commands\SitesHeartbeatSweep;
+use App\Console\Commands\SitesProbeExpiry;
 use Illuminate\Support\Facades\Schedule;
 
 /*
@@ -13,3 +14,6 @@ Schedule::command(SitesHeartbeatSweep::class)->everyFifteenMinutes();
 
 // Ablauf-Scan (SSL/Domain/Lizenz) einmal täglich früh.
 Schedule::command(SitesExpiryScan::class)->dailyAt('06:30');
+
+// Automatische SSL-/Domain-Ablauf-Abfrage (TLS + RDAP) einmal täglich.
+Schedule::command(SitesProbeExpiry::class)->dailyAt('05:45');

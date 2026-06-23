@@ -5,6 +5,8 @@ namespace App\Filament\Resources\SiteResource\Pages;
 use App\Filament\Resources\SiteResource;
 use App\Models\Site;
 use Filament\Actions;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Artisan;
 use Filament\Infolists\Components\Grid;
 use Filament\Infolists\Components\Group;
 use Filament\Infolists\Components\IconEntry;
@@ -21,6 +23,20 @@ class ViewSite extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('probeExpiry')
+                ->label('SSL/Domain prüfen')
+                ->icon('heroicon-o-shield-check')
+                ->color('gray')
+                ->action(function () {
+                    Artisan::call('sites:probe-expiry', ['--site' => $this->record->site_id]);
+                    $this->record->refresh();
+
+                    Notification::make()
+                        ->success()
+                        ->title('Geprüft')
+                        ->body('SSL-/Domain-Ablauf wurde aktualisiert.')
+                        ->send();
+                }),
             Actions\EditAction::make(),
         ];
     }
