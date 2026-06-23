@@ -84,6 +84,8 @@ class SiteResource extends Resource
 
             Forms\Components\Section::make('Hosting & Paket')
                 ->columns(2)
+                ->collapsible()
+                ->collapsed()
                 ->schema([
                     Forms\Components\Toggle::make('hosted_by_us')->label('Hosting bei uns')->default(true),
                     Forms\Components\Toggle::make('domain_by_us')->label('Domain bei uns')->default(true),
@@ -94,6 +96,8 @@ class SiteResource extends Resource
 
             Forms\Components\Section::make('Abläufe')
                 ->columns(2)
+                ->collapsible()
+                ->collapsed()
                 ->schema([
                     Forms\Components\DatePicker::make('ssl_expires_at')->label('SSL läuft ab am')->native(false),
                     Forms\Components\DatePicker::make('domain_expires_at')->label('Domain läuft ab am')->native(false),
