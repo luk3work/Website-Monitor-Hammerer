@@ -229,11 +229,99 @@
 .oc-etrack { width: 120px; height: 5px; border-radius: 99px; background: rgba(255,255,255,.07); margin-top: 6px; overflow: hidden; margin-left: auto; }
 .oc-etrack i { display: block; height: 100%; border-radius: 99px; }
 
+/* =========================================================================
+   Kunden-Konsole (3-Spalten Master-Detail)
+   ========================================================================= */
+.oc-md { display: grid; grid-template-columns: 332px 1fr; border: 1px solid var(--oc-line); border-radius: var(--oc-radius); overflow: hidden; height: calc(100vh - 13rem); min-height: 540px; background: var(--oc-surface); }
+
+/* Liste */
+.oc-clist { border-right: 1px solid var(--oc-line); display: flex; flex-direction: column; min-height: 0; background: var(--oc-bg-elev); }
+.oc-ch { padding: 14px 14px 12px; border-bottom: 1px solid var(--oc-line); }
+.oc-srch { display: flex; align-items: center; gap: 8px; background: var(--oc-surface); border: 1px solid var(--oc-line); border-radius: 9px; padding: 0 11px; }
+.oc-srch input { background: transparent; border: 0; outline: none; color: var(--oc-text); font-size: 13px; padding: 9px 0; width: 100%; font-family: inherit; }
+.oc-srch input::placeholder { color: var(--oc-text-faint); }
+.oc-filters { display: flex; gap: 6px; margin-top: 10px; }
+.oc-chip { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 99px; background: var(--oc-surface-2); border: 1px solid var(--oc-line); color: var(--oc-text-dim); cursor: pointer; }
+.oc-chip.on { background: var(--oc-accent-soft); border-color: transparent; color: #ffd9de; }
+.oc-citems { overflow: auto; flex: 1; padding: 8px; }
+.oc-citem { display: flex; align-items: center; gap: 12px; padding: 11px; border-radius: 11px; cursor: pointer; border: 1px solid transparent; text-align: left; width: 100%; background: transparent; color: inherit; font-family: inherit; }
+.oc-citem:hover { background: rgba(255,255,255,.04); }
+.oc-citem.on { background: var(--oc-surface-2); border-color: var(--oc-line-strong); }
+.oc-citem .oc-logo { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: #fff; flex: 0 0 38px; }
+.oc-citem .oc-cn { font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 7px; }
+.oc-citem .oc-cs { font-size: 11.5px; color: var(--oc-text-faint); margin-top: 1px; }
+.oc-citem .oc-cb { margin-left: auto; }
+
+/* Dot/Badge-Helfer (Konsole) */
+.oc-d { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 8px; display: inline-block; }
+.oc-d.ok { background: var(--oc-emerald); } .oc-d.warn { background: var(--oc-amber); }
+.oc-d.crit { background: var(--oc-rose); } .oc-d.off { background: var(--oc-text-faint); }
+.oc-bdg { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 99px; white-space: nowrap; }
+.oc-bdg.ok { background: rgba(52,211,153,.13); color: #6ee7b7; }
+.oc-bdg.warn { background: rgba(251,191,36,.13); color: #fcd34d; }
+.oc-bdg.crit { background: rgba(251,77,99,.14); color: #fda4af; }
+.oc-bdg.info { background: rgba(56,189,248,.13); color: #7dd3fc; }
+.oc-bdg.neutral { background: rgba(255,255,255,.06); color: var(--oc-text-dim); }
+
+/* Detail */
+.oc-detail { overflow: auto; min-height: 0; }
+.oc-dhead { display: flex; align-items: flex-start; gap: 16px; padding: 18px 22px; border-bottom: 1px solid var(--oc-line); background: var(--oc-surface); position: sticky; top: 0; z-index: 3; }
+.oc-dhead .oc-big { width: 50px; height: 50px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; color: #fff; flex: 0 0 50px; }
+.oc-dhead h2 { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; margin: 0; }
+.oc-dsub { font-size: 12.5px; color: var(--oc-text-dim); margin-top: 4px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.oc-sitesel { display: flex; align-items: center; gap: 7px; background: var(--oc-bg-elev); border: 1px solid var(--oc-line-strong); border-radius: 9px; padding: 6px 10px; }
+.oc-sitesel select { background: transparent; border: 0; color: var(--oc-text); font-weight: 600; font-size: 12.5px; outline: none; font-family: inherit; }
+.oc-dact { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.oc-btn { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600; padding: 8px 12px; border-radius: 9px; border: 1px solid var(--oc-line-strong); background: var(--oc-surface-2); color: var(--oc-text); cursor: pointer; text-decoration: none; }
+.oc-btn:hover { background: var(--oc-surface-3); }
+.oc-btn.acc { background: var(--oc-accent); border-color: var(--oc-accent); color: #fff; }
+.oc-btn.ghost { background: transparent; }
+
+.oc-dbody { padding: 18px 22px 32px; display: grid; grid-template-columns: 1fr 290px; gap: 18px; align-items: start; }
+.oc-health2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.oc-hcard { padding: 13px 14px; border-radius: var(--oc-radius-md); background: var(--oc-surface-2); border: 1px solid var(--oc-line); }
+.oc-hcard .hl { font-size: 11px; color: var(--oc-text-dim); font-weight: 500; }
+.oc-hcard .hv { font-size: 16px; font-weight: 700; margin-top: 6px; display: flex; align-items: center; gap: 8px; letter-spacing: -0.02em; }
+.oc-hcard .hs { font-size: 11px; color: var(--oc-text-faint); margin-top: 3px; }
+
+.oc-tabs { display: flex; gap: 4px; padding: 4px; background: var(--oc-surface-2); border: 1px solid var(--oc-line); border-radius: 11px; overflow: auto; }
+.oc-tab { font-size: 12.5px; font-weight: 600; padding: 8px 13px; border-radius: 8px; color: var(--oc-text-dim); white-space: nowrap; cursor: pointer; border: 0; background: transparent; font-family: inherit; }
+.oc-tab.on { background: var(--oc-accent-soft); color: #ffd9de; }
+
+.oc-kv { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1px; background: var(--oc-line); border-radius: var(--oc-radius-md); overflow: hidden; }
+.oc-kv .cell { background: var(--oc-surface); padding: 12px 15px; }
+.oc-kv .k { font-size: 11px; color: var(--oc-text-faint); }
+.oc-kv .v { font-size: 13.5px; font-weight: 600; margin-top: 5px; display: flex; align-items: center; gap: 7px; }
+
+.oc-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.oc-tbl th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--oc-text-faint); font-weight: 700; padding: 11px 16px; border-bottom: 1px solid var(--oc-line); }
+.oc-tbl td { padding: 12px 16px; border-bottom: 1px solid var(--oc-line); }
+.oc-tbl tr:last-child td { border-bottom: 0; }
+.oc-tbl tr:hover td { background: rgba(255,255,255,.022); }
+
+.oc-preview { border-radius: var(--oc-radius); overflow: hidden; border: 1px solid var(--oc-line); background: var(--oc-surface); }
+.oc-pvbar { display: flex; align-items: center; gap: 7px; padding: 8px 11px; border-bottom: 1px solid var(--oc-line); background: var(--oc-surface-2); }
+.oc-pvbar .pvd { display: flex; gap: 5px; } .oc-pvbar .pvd i { width: 9px; height: 9px; border-radius: 50%; display: block; }
+.oc-pvurl { font-size: 10.5px; color: var(--oc-text-dim); background: var(--oc-bg); border: 1px solid var(--oc-line); border-radius: 6px; padding: 3px 9px; flex: 1; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.oc-pvframe { aspect-ratio: 16/10; overflow: hidden; position: relative; background: #0e1016; }
+.oc-pvframe iframe { position: absolute; top: 0; left: 0; width: 1280px; height: 800px; border: 0; transform: scale(.226); transform-origin: top left; pointer-events: none; }
+
+.oc-emptybox { padding: 40px 20px; text-align: center; color: var(--oc-text-dim); }
+.oc-emptybox .ic { font-size: 24px; color: var(--oc-text-faint); }
+.oc-emptybox p { margin: 8px 0 2px; font-size: 13px; color: var(--oc-text); }
+.oc-emptybox small { color: var(--oc-text-faint); }
+
 /* ---- Responsiv ---------------------------------------------------------- */
 @media (max-width: 1200px) {
     .oc-kpis { grid-template-columns: repeat(2, 1fr); }
     .oc-hero, .oc-lower { grid-template-columns: 1fr; }
+    .oc-dbody { grid-template-columns: 1fr; }
+}
+@media (max-width: 900px) {
+    .oc-md { grid-template-columns: 1fr; height: auto; }
+    .oc-clist { max-height: 320px; }
 }
 @media (max-width: 640px) {
     .oc-kpis { grid-template-columns: 1fr; }
+    .oc-health2 { grid-template-columns: 1fr; }
 }

@@ -72,8 +72,7 @@ class AdminPanelProvider extends PanelProvider
             // Cockpit-Charakter: volle Breite, einklappbare Sidebar, gruppierte Navigation, SPA.
             ->maxContentWidth(MaxWidth::Full)
             ->sidebarCollapsibleOnDesktop()
-            ->navigationGroups(['Betrieb', 'Stammdaten', 'Verwaltung'])
-            ->spa()
+            ->navigationGroups(['Betrieb', 'Verwaltung'])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')

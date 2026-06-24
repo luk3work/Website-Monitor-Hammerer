@@ -18,7 +18,7 @@ class SiteResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-globe-alt';
 
-    protected static ?string $navigationLabel = 'Sites';
+    protected static ?string $navigationLabel = 'Seiten';
 
     protected static ?string $modelLabel = 'Site';
 

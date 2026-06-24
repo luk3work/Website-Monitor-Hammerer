@@ -23,9 +23,13 @@ class CustomerResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Kunden';
 
-    protected static ?string $navigationGroup = 'Stammdaten';
+    protected static ?string $navigationGroup = 'Betrieb';
 
     protected static ?int $navigationSort = 3;
+
+    // Kunden laufen über die neue Kunden-Konsole (KundenConsole); die CRUD-Resource
+    // bleibt erreichbar (Bearbeiten/Anlegen), erscheint aber nicht doppelt im Menü.
+    protected static bool $shouldRegisterNavigation = false;
 
     public static function form(Form $form): Form
     {
