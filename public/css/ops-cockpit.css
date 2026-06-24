@@ -31,8 +31,9 @@
 }
 .dark .fi-body,
 .dark .fi-main-ctn,
+.dark .fi-main,
 .dark .fi-layout {
-    background-color: var(--oc-bg);
+    background-color: var(--oc-bg) !important;
 }
 
 .fi-header-heading {
@@ -47,7 +48,7 @@
 
 /* ---- Sidebar: eigene, ruhige Fläche ------------------------------------- */
 .dark .fi-sidebar {
-    background-color: var(--oc-bg-elev);
+    background-color: var(--oc-bg-elev) !important;
     border-right: 1px solid var(--oc-line);
 }
 .fi-sidebar-header { border-bottom: 1px solid var(--oc-line); height: auto; }
@@ -95,7 +96,7 @@
     border: 1px solid var(--oc-line);
     box-shadow: var(--oc-shadow-sm);
 }
-.dark .fi-section { background-color: var(--oc-surface); }
+.dark .fi-section { background-color: var(--oc-surface) !important; }
 .fi-section-content { padding: 1.4rem !important; }
 .fi-section-header { padding: 1.15rem 1.4rem !important; }
 .dark .fi-section-header { border-bottom: 1px solid var(--oc-line); }

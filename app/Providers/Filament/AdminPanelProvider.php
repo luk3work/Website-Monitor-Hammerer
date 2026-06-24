@@ -48,13 +48,17 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('Ops Cockpit')
             // Ruhige, moderne Typografie.
             ->font('Inter')
-            // Eigener Feinschliff (Apple/Notion-inspiriert) als statisches Stylesheet.
+            // Eigener Feinschliff (Apple/Notion-inspiriert): das Design-System wird
+            // INLINE in den <head> geschrieben. So gibt es keine externe Datei, die
+            // über einen falschen Schema-/Proxy-Pfad blockiert oder per CDN gecacht
+            // werden könnte – das CSS steht garantiert im Markup und greift sofort.
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
-                // Versionskennung (Datei-Zeitstempel) bricht Browser-/CDN-Cache bei jeder Änderung.
-                fn (): string => '<link rel="stylesheet" href="'
-                    . asset('css/ops-cockpit.css') . '?v=' . (@filemtime(public_path('css/ops-cockpit.css')) ?: time())
-                    . '">',
+                function (): string {
+                    $css = @file_get_contents(public_path('css/ops-cockpit.css'));
+
+                    return $css ? '<style id="ops-cockpit-css">' . $css . '</style>' : '';
+                },
             )
             // Dark-Mode erzwingen ("dunkel & edel"): überschreibt eine evtl. hell
             // gespeicherte Nutzer-Präferenz, bevor Filament/Alpine sie liest.
