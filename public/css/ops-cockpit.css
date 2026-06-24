@@ -1,7 +1,7 @@
 /* =========================================================================
    Ops Cockpit – SaaS Design-System (dunkel, edel, ruhig)
-   Statisches Stylesheet, per Render-Hook ins Panel eingehängt.
-   Zielt auf stabile Filament-"fi-"-Klassen. Rein optisch, keine Logik.
+   Inline in den <head> eingehängt (siehe AdminPanelProvider).
+   Primärakzent: Lavared #d7263d · Kritisch: Rose (klar abgegrenzt).
    Referenz-Anmutung: Linear / Vercel / Planetscale.
    ========================================================================= */
 
@@ -14,12 +14,25 @@
     --oc-bg-elev: #0e1017;
     --oc-surface: #12141c;
     --oc-surface-2: #161924;
+    --oc-surface-3: #1b1f2b;
     --oc-line: rgba(255, 255, 255, 0.07);
     --oc-line-strong: rgba(255, 255, 255, 0.12);
+    --oc-text: #f4f5f7;
     --oc-text-dim: rgba(255, 255, 255, 0.62);
+    --oc-text-faint: rgba(255, 255, 255, 0.40);
+
+    --oc-accent: #d7263d;
+    --oc-accent-bright: #f0556a;
+    --oc-accent-soft: rgba(215, 38, 61, 0.15);
+
+    --oc-emerald: #34d399;
+    --oc-amber: #fbbf24;
+    --oc-rose: #fb4d63;
+    --oc-sky: #38bdf8;
+    --oc-violet: #a78bfa;
 
     --oc-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
-    --oc-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 10px 30px rgba(0, 0, 0, 0.22);
+    --oc-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 12px 30px rgba(0, 0, 0, 0.25);
 }
 
 /* ---- Grundton & Typografie ---------------------------------------------- */
@@ -36,47 +49,31 @@
     background-color: var(--oc-bg) !important;
 }
 
-.fi-header-heading {
-    font-weight: 700;
-    letter-spacing: -0.025em;
-    font-size: 1.55rem;
-}
+.fi-header-heading { font-weight: 700; letter-spacing: -0.025em; font-size: 1.6rem; }
 .fi-header-subheading { color: var(--oc-text-dim); }
 .fi-section-header-heading { font-weight: 600; letter-spacing: -0.012em; }
 .fi-section-header-description { color: var(--oc-text-dim); }
-.fi-breadcrumbs { opacity: 0.65; font-size: 0.78rem; }
+.fi-breadcrumbs { opacity: 0.7; font-size: 0.78rem; }
 
-/* ---- Sidebar: eigene, ruhige Fläche ------------------------------------- */
-.dark .fi-sidebar {
-    background-color: var(--oc-bg-elev) !important;
-    border-right: 1px solid var(--oc-line);
-}
+/* ---- Sidebar ------------------------------------------------------------ */
+.dark .fi-sidebar { background-color: var(--oc-bg-elev) !important; border-right: 1px solid var(--oc-line); }
 .fi-sidebar-header { border-bottom: 1px solid var(--oc-line); height: auto; }
 .fi-sidebar .fi-logo { font-weight: 700; letter-spacing: -0.02em; }
 .fi-sidebar-nav { padding: 0.85rem 0.6rem; gap: 0.12rem; }
 .fi-sidebar-group + .fi-sidebar-group { margin-top: 1.15rem; }
 .fi-sidebar-group-label {
-    text-transform: uppercase;
-    letter-spacing: 0.09em;
-    font-size: 0.64rem;
-    font-weight: 700;
-    opacity: 0.42;
-    padding-left: 0.7rem;
-    margin-bottom: 0.25rem;
+    text-transform: uppercase; letter-spacing: 0.09em; font-size: 0.64rem;
+    font-weight: 700; opacity: 0.42; padding-left: 0.7rem; margin-bottom: 0.25rem;
 }
 .fi-sidebar-item-button {
-    border-radius: var(--oc-radius-sm);
-    padding: 0.5rem 0.7rem;
-    transition: background-color 0.15s ease, color 0.15s ease;
-    font-weight: 500;
+    border-radius: var(--oc-radius-sm); padding: 0.5rem 0.7rem;
+    transition: background-color 0.15s ease, color 0.15s ease; font-weight: 500;
 }
-.dark .fi-sidebar-item-button:hover { background-color: rgba(255, 255, 255, 0.045); }
+.dark .fi-sidebar-item-button:hover { background-color: rgba(255, 255, 255, 0.05); }
 .dark .fi-sidebar-item.fi-active .fi-sidebar-item-button {
-    background-color: rgba(56, 189, 248, 0.13);
-    color: #e0f2fe;
-    font-weight: 600;
+    background-color: var(--oc-accent-soft); color: #fecdd3; font-weight: 600;
 }
-.dark .fi-sidebar-item.fi-active .fi-sidebar-item-icon { color: #38bdf8; }
+.dark .fi-sidebar-item.fi-active .fi-sidebar-item-icon { color: var(--oc-accent-bright); }
 
 /* ---- Topbar ------------------------------------------------------------- */
 .dark .fi-topbar > nav {
@@ -85,80 +82,158 @@
     border-bottom: 1px solid var(--oc-line);
 }
 
-/* ---- Sektionen / Karten ------------------------------------------------- */
-.fi-section,
-.fi-wi-stats-overview-stat,
-.fi-ta-ctn,
-.fi-modal-window {
-    border-radius: var(--oc-radius) !important;
-}
-.fi-section {
-    border: 1px solid var(--oc-line);
-    box-shadow: var(--oc-shadow-sm);
-}
+/* ---- Sektionen / Karten (Resource-Seiten) ------------------------------- */
+.fi-section, .fi-wi-stats-overview-stat, .fi-ta-ctn, .fi-modal-window { border-radius: var(--oc-radius) !important; }
+.fi-section { border: 1px solid var(--oc-line); box-shadow: var(--oc-shadow-sm); }
 .dark .fi-section { background-color: var(--oc-surface) !important; }
 .fi-section-content { padding: 1.4rem !important; }
 .fi-section-header { padding: 1.15rem 1.4rem !important; }
 .dark .fi-section-header { border-bottom: 1px solid var(--oc-line); }
 
-/* ---- KPI-Tiles: klar, mit prominentem Wert ------------------------------ */
-.fi-wi-stats-overview-stat {
-    border: 1px solid var(--oc-line);
-    box-shadow: var(--oc-shadow-sm);
-    padding: 1.25rem 1.35rem !important;
-    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-}
-.dark .fi-wi-stats-overview-stat {
-    background: linear-gradient(180deg, var(--oc-surface-2) 0%, var(--oc-surface) 100%);
-}
-.fi-wi-stats-overview-stat:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--oc-shadow);
-    border-color: var(--oc-line-strong);
-}
-.fi-wi-stats-overview-stat-value { font-weight: 700; letter-spacing: -0.03em; font-size: 2rem; line-height: 1.1; }
-.fi-wi-stats-overview-stat-label { color: var(--oc-text-dim); font-weight: 500; }
-.fi-wi-stats-overview-stat-description { color: var(--oc-text-dim); font-size: 0.8rem; }
-
 /* ---- Tabellen ----------------------------------------------------------- */
 .fi-ta-header-cell {
-    text-transform: uppercase;
-    letter-spacing: 0.055em;
-    font-size: 0.66rem;
-    font-weight: 600;
-    color: var(--oc-text-dim);
+    text-transform: uppercase; letter-spacing: 0.055em; font-size: 0.66rem;
+    font-weight: 600; color: var(--oc-text-dim);
 }
 .dark .fi-ta-header { background-color: var(--oc-surface-2); }
 .fi-ta-row { transition: background-color 0.12s ease; }
 .dark .fi-ta-row:hover { background-color: rgba(255, 255, 255, 0.028); }
-.fi-ta-record-checkbox-ctn + .fi-ta-cell { padding-left: 0.5rem; }
 
-/* ---- Buttons / Badges / Inputs ------------------------------------------ */
+/* ---- Buttons / Badges / Inputs / Tabs ----------------------------------- */
 .fi-btn { border-radius: var(--oc-radius-sm); font-weight: 600; letter-spacing: -0.01em; }
 .fi-badge { font-weight: 600; letter-spacing: 0.01em; border-radius: 9999px; padding-inline: 0.6rem; }
 .fi-input, .fi-select-input { border-radius: var(--oc-radius-sm) !important; }
 .dark .fi-input-wrp { background-color: var(--oc-bg-elev); border-radius: var(--oc-radius-sm); }
-
-/* ---- Tabs (Formulare/Seiten) -------------------------------------------- */
-.fi-tabs {
-    border-radius: var(--oc-radius-sm);
-    background-color: rgba(255, 255, 255, 0.03);
-    padding: 0.25rem;
-    gap: 0.15rem;
-}
+.fi-tabs { border-radius: var(--oc-radius-sm); background-color: rgba(255, 255, 255, 0.03); padding: 0.25rem; gap: 0.15rem; }
 .fi-tabs-item { border-radius: var(--oc-radius-sm); font-weight: 600; }
-.dark .fi-tabs-item-active { background-color: rgba(56, 189, 248, 0.13); }
+.dark .fi-tabs-item-active { background-color: var(--oc-accent-soft); }
 
-/* ---- Rhythmus & Atemraum ------------------------------------------------ */
+/* ---- Rhythmus & Scrollbars ---------------------------------------------- */
 .fi-main { padding-top: 1.75rem; padding-bottom: 2.75rem; }
-.fi-page > * + * { margin-top: 1.4rem; }
-.fi-wi { gap: 1.25rem; }
-
-/* ---- Dezente Scrollbars ------------------------------------------------- */
 .dark ::-webkit-scrollbar { width: 10px; height: 10px; }
 .dark ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.10); border-radius: 9999px; border: 2px solid transparent; background-clip: content-box; }
 .dark ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.18); background-clip: content-box; }
 .dark ::-webkit-scrollbar-track { background: transparent; }
 
-/* ---- Hell-/Dunkel-Umschalter ausblenden (fester Dark-Mode) -------------- */
+/* Hell-/Dunkel-Umschalter ausblenden (festes Dark-Cockpit). */
 .fi-theme-switcher { display: none !important; }
+
+/* =========================================================================
+   Maßgeschneidertes Cockpit-Dashboard (eigene oc-*-Komponenten)
+   ========================================================================= */
+.oc { display: flex; flex-direction: column; gap: 20px; color: var(--oc-text); }
+.oc-card {
+    background: var(--oc-surface); border: 1px solid var(--oc-line);
+    border-radius: var(--oc-radius); box-shadow: var(--oc-shadow-sm);
+}
+.oc-sec-h { display: flex; align-items: center; gap: 10px; padding: 15px 20px; border-bottom: 1px solid var(--oc-line); }
+.oc-sec-h h3 { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+.oc-sec-h .oc-count { font-size: 11px; font-weight: 700; color: var(--oc-text-dim); background: rgba(255,255,255,.06); padding: 1px 8px; border-radius: 99px; }
+.oc-sec-h .oc-more { margin-left: auto; font-size: 12px; color: var(--oc-accent-bright); font-weight: 600; }
+
+/* ---- Hero: Health + KI -------------------------------------------------- */
+.oc-hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 16px; }
+.oc-health { padding: 22px 24px; display: flex; align-items: center; gap: 22px; background: linear-gradient(180deg, var(--oc-surface-2), var(--oc-surface)); }
+.oc-ring { position: relative; width: 96px; height: 96px; flex: 0 0 96px; }
+.oc-ring .oc-ring-mid { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.oc-ring .oc-ring-mid b { font-size: 23px; font-weight: 700; letter-spacing: -0.03em; }
+.oc-ring .oc-ring-mid span { font-size: 10px; color: var(--oc-text-dim); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.oc-health h2 { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; display: flex; align-items: center; gap: 9px; margin: 0; }
+.oc-pulse { width: 9px; height: 9px; border-radius: 50%; background: var(--oc-emerald); box-shadow: 0 0 0 0 rgba(52,211,153,.5); animation: ocpulse 2.6s infinite; }
+.oc-pulse.warn { background: var(--oc-amber); box-shadow: 0 0 0 0 rgba(251,191,36,.5); }
+.oc-pulse.crit { background: var(--oc-rose); box-shadow: 0 0 0 0 rgba(251,77,99,.5); }
+@keyframes ocpulse { 0% { box-shadow: 0 0 0 0 rgba(52,211,153,.45);} 70% { box-shadow: 0 0 0 9px rgba(52,211,153,0);} 100% { box-shadow: 0 0 0 0 rgba(52,211,153,0);} }
+.oc-health p { font-size: 13px; color: var(--oc-text-dim); margin: 5px 0 0; line-height: 1.5; max-width: 340px; }
+.oc-legend { display: flex; gap: 18px; margin-top: 13px; flex-wrap: wrap; }
+.oc-legend div { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--oc-text-dim); font-weight: 500; }
+.oc-legend i { width: 8px; height: 8px; border-radius: 50%; }
+
+.oc-ki { padding: 18px 22px; display: flex; flex-direction: column; gap: 12px; }
+.oc-ki-h { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 700; letter-spacing: -0.01em; }
+.oc-ki-h .oc-ki-ic { width: 22px; height: 22px; border-radius: 7px; background: rgba(167,139,250,.16); display: flex; align-items: center; justify-content: center; color: var(--oc-violet); font-size: 13px; }
+.oc-ki-h .oc-ki-tag { margin-left: auto; font-size: 10.5px; font-weight: 600; color: var(--oc-violet); background: rgba(167,139,250,.12); padding: 2px 9px; border-radius: 99px; }
+.oc-insight { display: flex; gap: 11px; align-items: flex-start; font-size: 12.5px; color: var(--oc-text-dim); line-height: 1.5; }
+.oc-insight .oc-dot { margin-top: 6px; width: 6px; height: 6px; border-radius: 50%; flex: 0 0 6px; background: var(--oc-amber); }
+.oc-insight .oc-dot.sky { background: var(--oc-sky); }
+.oc-insight .oc-dot.rose { background: var(--oc-rose); }
+.oc-insight b { color: var(--oc-text); font-weight: 600; }
+.oc-ki-empty { font-size: 12.5px; color: var(--oc-text-dim); display: flex; align-items: center; gap: 8px; }
+
+/* ---- KPI-Reihe ---------------------------------------------------------- */
+.oc-kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+.oc-kpi { position: relative; overflow: hidden; padding: 16px 17px; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; text-decoration: none; color: inherit; display: block; }
+.oc-kpi:hover { transform: translateY(-2px); border-color: var(--oc-line-strong); box-shadow: var(--oc-shadow); }
+.oc-kpi .oc-lab { font-size: 12px; color: var(--oc-text-dim); font-weight: 500; display: flex; align-items: center; gap: 7px; }
+.oc-kpi .oc-val { font-size: 30px; font-weight: 700; letter-spacing: -0.035em; line-height: 1; margin: 11px 0 9px; }
+.oc-kpi .oc-val small { font-size: 15px; font-weight: 600; color: var(--oc-text-faint); letter-spacing: -0.02em; }
+.oc-sub { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 99px; }
+.oc-sub.emerald { color: #6ee7b7; background: rgba(52,211,153,.13); }
+.oc-sub.amber { color: #fcd34d; background: rgba(251,191,36,.13); }
+.oc-sub.rose { color: #fda4af; background: rgba(251,77,99,.14); }
+.oc-sub.sky { color: #7dd3fc; background: rgba(56,189,248,.13); }
+.oc-sub.neutral { color: var(--oc-text-dim); background: rgba(255,255,255,.06); }
+.oc-kpi .oc-spark { position: absolute; right: 0; bottom: 0; width: 96px; height: 38px; opacity: .9; }
+.oc-kpi.alert { border-color: rgba(251,77,99,.30); }
+.oc-kpi.alert::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--oc-rose); }
+.oc-kpi.warnedge { border-color: rgba(251,191,36,.28); }
+.oc-kpi.warnedge::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--oc-amber); }
+
+/* ---- Unteres Raster: Queue + rechte Spalte ------------------------------ */
+.oc-lower { display: grid; grid-template-columns: 1.7fr 1fr; gap: 18px; align-items: start; }
+.oc-rstack { display: flex; flex-direction: column; gap: 18px; }
+
+/* Handlungs-Queue */
+.oc-q-row { display: grid; grid-template-columns: auto 1fr auto auto; gap: 14px; align-items: center; padding: 13px 20px; border-bottom: 1px solid var(--oc-line); text-decoration: none; color: inherit; transition: background-color .12s ease; }
+.oc-q-row:last-child { border-bottom: 0; }
+.oc-q-row:hover { background: rgba(255,255,255,.028); }
+.oc-sev { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex: 0 0 34px; }
+.oc-sev.crit { background: rgba(251,77,99,.14); color: var(--oc-rose); }
+.oc-sev.warn { background: rgba(251,191,36,.14); color: var(--oc-amber); }
+.oc-sev.info { background: rgba(56,189,248,.13); color: var(--oc-sky); }
+.oc-q-title { font-size: 13.5px; font-weight: 600; }
+.oc-q-site { font-size: 12px; color: var(--oc-text-dim); margin-top: 2px; }
+.oc-q-meta { font-size: 11.5px; color: var(--oc-text-faint); text-align: right; white-space: nowrap; }
+.oc-q-meta b { display: block; color: var(--oc-text-dim); font-weight: 600; font-size: 12px; }
+.oc-pill { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 99px; white-space: nowrap; }
+.oc-pill.crit { background: rgba(251,77,99,.14); color: #fda4af; }
+.oc-pill.warn { background: rgba(251,191,36,.14); color: #fcd34d; }
+.oc-pill.info { background: rgba(56,189,248,.13); color: #7dd3fc; }
+.oc-empty { padding: 38px 20px; text-align: center; color: var(--oc-text-dim); }
+.oc-empty .oc-empty-ic { font-size: 26px; color: var(--oc-emerald); }
+.oc-empty p { margin: 8px 0 0; font-size: 13px; }
+.oc-empty small { color: var(--oc-text-faint); }
+
+/* Donut */
+.oc-donut-wrap { padding: 20px; display: flex; align-items: center; gap: 20px; }
+.oc-donut { position: relative; width: 120px; height: 120px; flex: 0 0 120px; }
+.oc-donut .oc-donut-mid { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.oc-donut .oc-donut-mid b { font-size: 24px; font-weight: 700; letter-spacing: -0.03em; }
+.oc-donut .oc-donut-mid span { font-size: 10.5px; color: var(--oc-text-dim); font-weight: 600; }
+.oc-dlegend { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.oc-dl { display: flex; align-items: center; gap: 9px; font-size: 12.5px; color: var(--oc-text-dim); }
+.oc-dl i { width: 9px; height: 9px; border-radius: 3px; }
+.oc-dl b { margin-left: auto; color: var(--oc-text); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* Ablauf-Timeline */
+.oc-erow { display: flex; align-items: center; gap: 13px; padding: 12px 20px; border-bottom: 1px solid var(--oc-line); text-decoration: none; color: inherit; }
+.oc-erow:last-child { border-bottom: 0; }
+.oc-erow:hover { background: rgba(255,255,255,.028); }
+.oc-etype { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; background: rgba(255,255,255,.05); color: var(--oc-text-dim); flex: 0 0 30px; }
+.oc-ename { font-size: 13px; font-weight: 600; }
+.oc-esub { font-size: 11.5px; color: var(--oc-text-faint); margin-top: 1px; }
+.oc-ebar { margin-left: auto; text-align: right; }
+.oc-edays { font-size: 13px; font-weight: 700; }
+.oc-edays.ok { color: var(--oc-emerald); }
+.oc-edays.soon { color: var(--oc-amber); }
+.oc-edays.crit { color: var(--oc-rose); }
+.oc-etrack { width: 120px; height: 5px; border-radius: 99px; background: rgba(255,255,255,.07); margin-top: 6px; overflow: hidden; margin-left: auto; }
+.oc-etrack i { display: block; height: 100%; border-radius: 99px; }
+
+/* ---- Responsiv ---------------------------------------------------------- */
+@media (max-width: 1200px) {
+    .oc-kpis { grid-template-columns: repeat(2, 1fr); }
+    .oc-hero, .oc-lower { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+    .oc-kpis { grid-template-columns: 1fr; }
+}

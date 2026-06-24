@@ -38,8 +38,11 @@ class AdminPanelProvider extends PanelProvider
             ->profile()
             // Dunkles Daten-Cockpit als Standard (Hell-/Dunkel-Umschalter bleibt erhalten).
             ->defaultThemeMode(ThemeMode::Dark)
+            // Markenfarbe "Lavared" als Primärakzent (Navigation, Buttons, Links).
+            // Kritisch/Gefahr nutzt bewusst das hellere Rose, damit Status-Rot vom
+            // Marken-Rot klar unterscheidbar bleibt (Information nie nur über Farbe).
             ->colors([
-                'primary' => Color::Sky,
+                'primary' => Color::Red,
                 'gray'    => Color::Slate,
                 'success' => Color::Emerald,
                 'warning' => Color::Amber,
