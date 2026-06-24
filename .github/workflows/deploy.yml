@@ -5,6 +5,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      run_demo_seed:
+        description: 'Demo-Daten einspielen (4 Beispiel-Kunden/Sites)'
+        type: boolean
+        default: false
 
 # Verhindert parallele Deploys, die sich gegenseitig überholen.
 concurrency:
@@ -39,7 +44,7 @@ jobs:
         if: steps.cfg.outputs.ready == 'true'
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.4'
           tools: composer:v2
 
       - name: Composer install (ohne Dev)
@@ -71,6 +76,37 @@ jobs:
           echo "StrictHostKeyChecking accept-new" >> ~/.ssh/config
           chmod 600 ~/.ssh/config
 
+      # Server-.env aus Secrets erzeugen (wird im Deploy nach shared hochgeladen).
+      # Werte ohne echo -> erscheinen nicht im Log; GitHub maskiert Secrets zusätzlich.
+      - name: Server-.env erzeugen
+        if: steps.cfg.outputs.ready == 'true'
+        env:
+          APP_KEY: ${{ secrets.APP_KEY }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+        run: |
+          cat > .env.deploy <<EOF
+          APP_NAME="Ops Cockpit"
+          APP_ENV=production
+          APP_KEY=${APP_KEY}
+          APP_DEBUG=false
+          APP_URL=https://webmonitor.hammerer.at
+          LOG_CHANNEL=stack
+          LOG_LEVEL=error
+          DB_CONNECTION=mysql
+          DB_HOST=mysql-bgrsle.pg-s-sd41il.db.project.host
+          DB_PORT=3306
+          DB_DATABASE=mysql_bgrsle
+          DB_USERNAME=dbu_bgrsle
+          DB_PASSWORD="${DB_PASSWORD}"
+          SESSION_DRIVER=database
+          CACHE_STORE=database
+          QUEUE_CONNECTION=database
+          ADMIN_NAME="Lukas Wagner"
+          ADMIN_EMAIL=wagner@hammerer.at
+          ADMIN_PASSWORD="${ADMIN_PASSWORD}"
+          EOF
+
       - name: Deploy ausführen
         if: steps.cfg.outputs.ready == 'true'
         env:
@@ -79,4 +115,5 @@ jobs:
           ./vendor/bin/dep deploy \
             -o mittwald_app_id=${{ secrets.MITTWALD_APP_ID }} \
             -o mittwald_ssh_public_key_file=.mw-deploy/id_rsa.pub \
-            -o mittwald_ssh_private_key_file=.mw-deploy/id_rsa
+            -o mittwald_ssh_private_key_file=.mw-deploy/id_rsa \
+            -o run_demo_seed=${{ inputs.run_demo_seed || 'false' }}
