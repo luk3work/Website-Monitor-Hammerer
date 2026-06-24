@@ -51,7 +51,10 @@ class AdminPanelProvider extends PanelProvider
             // Eigener Feinschliff (Apple/Notion-inspiriert) als statisches Stylesheet.
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
-                fn (): string => '<link rel="stylesheet" href="' . asset('css/ops-cockpit.css') . '">',
+                // Versionskennung (Datei-Zeitstempel) bricht Browser-/CDN-Cache bei jeder Änderung.
+                fn (): string => '<link rel="stylesheet" href="'
+                    . asset('css/ops-cockpit.css') . '?v=' . (@filemtime(public_path('css/ops-cockpit.css')) ?: time())
+                    . '">',
             )
             // Cockpit-Charakter: volle Breite, einklappbare Sidebar, gruppierte Navigation, SPA.
             ->maxContentWidth(MaxWidth::Full)
