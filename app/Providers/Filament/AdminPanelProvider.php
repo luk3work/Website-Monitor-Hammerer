@@ -2,7 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Berichte;
 use App\Filament\Pages\Dashboard;
+use App\Filament\Pages\DomainOverview;
 use App\Filament\Widgets\CockpitStatsOverview;
 use App\Filament\Widgets\NeedsActionTable;
 use App\Filament\Widgets\OpenTasksByTypeChart;
@@ -79,6 +81,8 @@ class AdminPanelProvider extends PanelProvider
             // Dediziertes Dashboard als Startseite (sonst landet man ohne klare Home-Seite).
             ->pages([
                 Dashboard::class,
+                DomainOverview::class,
+                Berichte::class,
             ])
             // Reihenfolge: KPIs -> Braucht Handlung -> Visualisierungen.
             ->widgets([
