@@ -2,7 +2,7 @@
 /.phpunit.cache
 /bootstrap/ssr
 /node_modules
-/public/build
+# /public/build  # eingecheckt, da Mittwald kein Build-Step beim Deploy hat
 /public/hot
 /public/storage
 /storage/*.key
