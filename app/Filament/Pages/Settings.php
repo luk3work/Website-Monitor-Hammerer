@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\Setting;
+use App\Support\DemoData;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Tabs;
@@ -53,6 +54,7 @@ class Settings extends Page implements HasForms
             'digest_interval'     => Setting::get('digest_interval', 'weekly'),
             'ai_provider'         => Setting::get('ai_provider', ''),
             'ai_eu_only'          => (bool) Setting::get('ai_eu_only', true),
+            'demo_data_enabled'   => (bool) Setting::get('demo_data_enabled', false),
         ]);
     }
 
@@ -109,6 +111,19 @@ class Settings extends Page implements HasForms
                                     Toggle::make('ai_eu_only')->label('Nur EU-Verarbeitung zulassen')->inline(false),
                                 ]),
                         ]),
+
+                    Tabs\Tab::make('Demo-Daten')
+                        ->icon('heroicon-o-beaker')
+                        ->schema([
+                            Section::make('Beispiel-Daten anzeigen')
+                                ->description('Erzeugt vier Beispiel-Sites zum Ausprobieren der Oberfläche. Häkchen entfernen löscht sie wieder restlos.')
+                                ->schema([
+                                    Toggle::make('demo_data_enabled')
+                                        ->label('Demo-Daten anzeigen')
+                                        ->helperText('Nur zum Testen – keine echten Kundendaten.')
+                                        ->inline(false),
+                                ]),
+                        ]),
                 ])->columnSpanFull(),
             ])
             ->statePath('data');
@@ -116,8 +131,17 @@ class Settings extends Page implements HasForms
 
     public function save(): void
     {
-        foreach ($this->form->getState() as $key => $value) {
+        $state = $this->form->getState();
+
+        foreach ($state as $key => $value) {
             Setting::set($key, $value);
+        }
+
+        // Demo-Daten anhand des Schalters abgleichen (idempotent).
+        if (! empty($state['demo_data_enabled'])) {
+            DemoData::enable();
+        } else {
+            DemoData::disable();
         }
 
         Notification::make()->success()->title('Einstellungen gespeichert')->send();
