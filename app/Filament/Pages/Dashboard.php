@@ -26,6 +26,11 @@ class Dashboard extends BaseDashboard
         return 'Dashboard';
     }
 
+    public function getSubheading(): ?string
+    {
+        return 'Portfolio-Überblick — Status, Handlungsbedarf und Abläufe auf einen Blick.';
+    }
+
     public function getColumns(): int|array
     {
         // 6-Spalten-Raster für ein klares, ausgewogenes Cockpit-Layout.
