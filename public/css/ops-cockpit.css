@@ -158,3 +158,6 @@
 .dark ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.10); border-radius: 9999px; border: 2px solid transparent; background-clip: content-box; }
 .dark ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.18); background-clip: content-box; }
 .dark ::-webkit-scrollbar-track { background: transparent; }
+
+/* ---- Hell-/Dunkel-Umschalter ausblenden (fester Dark-Mode) -------------- */
+.fi-theme-switcher { display: none !important; }

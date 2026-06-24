@@ -56,6 +56,12 @@ class AdminPanelProvider extends PanelProvider
                     . asset('css/ops-cockpit.css') . '?v=' . (@filemtime(public_path('css/ops-cockpit.css')) ?: time())
                     . '">',
             )
+            // Dark-Mode erzwingen ("dunkel & edel"): überschreibt eine evtl. hell
+            // gespeicherte Nutzer-Präferenz, bevor Filament/Alpine sie liest.
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn (): string => '<script>try{localStorage.setItem("theme","dark");}catch(e){}document.documentElement.classList.add("dark");</script>',
+            )
             // Cockpit-Charakter: volle Breite, einklappbare Sidebar, gruppierte Navigation, SPA.
             ->maxContentWidth(MaxWidth::Full)
             ->sidebarCollapsibleOnDesktop()
