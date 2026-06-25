@@ -59,6 +59,16 @@ task('mittwald:domain')->disable();
  | laufen bewusst NACH dem Symlink. --force ist nötig (non-interaktiv);
  | destruktive Migrationen daher nur bewusst und nach Hinweis (siehe Anweisung).
  */
+// Alle Laravel-Caches leeren BEVOR der neue Code aktiv wird.
+// Verhindert stale kompilierte Views, Config-Cache und OPcache nach Updates.
+task('artisan:cache:clear:all', function () {
+    run('cd {{release_path}} && {{bin/php}} artisan view:clear');
+    run('cd {{release_path}} && {{bin/php}} artisan config:clear');
+    run('cd {{release_path}} && {{bin/php}} artisan route:clear');
+    run('cd {{release_path}} && {{bin/php}} artisan cache:clear');
+})->desc('Alle Laravel-Caches leeren');
+before('deploy:symlink', 'artisan:cache:clear:all');
+
 after('deploy:symlink', 'artisan:migrate');
 
 // Initialen Admin-Benutzer nach der Migration sicherstellen (idempotent).
