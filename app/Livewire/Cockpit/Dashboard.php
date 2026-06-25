@@ -2,10 +2,9 @@
 
 namespace App\Livewire\Cockpit;
 
-use App\Models\Customer;
-use App\Models\License;
 use App\Models\Site;
 use App\Models\Task;
+use Illuminate\Support\Collection;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -14,58 +13,92 @@ class Dashboard extends Component
 {
     public function render()
     {
-        $sites    = Site::query()->where('is_archived', false)->with('customer', 'tasks', 'licenses')->get();
-        $customers = Customer::query()->with('sites')->get();
+        $sites = Site::query()
+            ->with(['customer', 'packages'])
+            ->where('is_archived', false)
+            ->get();
 
         $totalSites     = $sites->count();
-        $totalCustomers = $customers->count();
-        $critSites      = $sites->where('status', 'offline')->count();
-        $warnSites      = $sites->where('status', 'maintenance')->count();
-        $sslSoon        = $sites->filter(fn ($s) => $s->ssl_expires_at && $s->ssl_expires_at->diffInDays(now(), false) <= 30 && $s->ssl_expires_at->isFuture())->count();
-        $sslCrit        = $sites->filter(fn ($s) => $s->ssl_expires_at && $s->ssl_expires_at->isPast())->count();
+        $totalCustomers = $sites->pluck('customer_id')->unique()->count();
+        $offlineSites   = $sites->whereIn('status', ['offline'])->count();
+        $sslCrit        = $sites->filter(fn ($s) => $s->sslDaysLeft() !== null && $s->sslDaysLeft() < 14)->count();
+        $sslWarn        = $sites->filter(fn ($s) => $s->sslDaysLeft() !== null && $s->sslDaysLeft() >= 14 && $s->sslDaysLeft() < 30)->count();
+        $domCrit        = $sites->filter(fn ($s) => $s->domainDaysLeft() !== null && $s->domainDaysLeft() < 30)->count();
+        $openTasks      = Task::query()->whereIn('status', ['open', 'in_progress', 'blocked'])->count();
+        $critTasks      = Task::query()->whereIn('status', ['open', 'in_progress', 'blocked'])->where('severity', 'critical')->count();
         $pendingUpdates = $sites->sum('pending_updates');
-        $openTasks      = Task::query()->whereNull('resolved_at')->count();
 
-        // Issues pro Site: kombiniert Status + SSL + Updates
-        $issues = collect();
-        foreach ($sites as $s) {
-            if ($s->status->value === 'offline') {
-                $issues->push(['sev' => 'crit', 'ic' => 'ti-plug-connected-x', 't' => 'Website offline', 's' => $s->label, 'href' => route('cockpit.kunden')]);
-            }
-            if ($s->ssl_expires_at && $s->ssl_expires_at->diffInDays(now(), false) <= 7) {
-                $issues->push(['sev' => 'crit', 'ic' => 'ti-lock-exclamation', 't' => 'SSL läuft in '.$s->ssl_expires_at->diffInDays(now(), false).'d ab', 's' => $s->label, 'href' => route('cockpit.domains')]);
-            } elseif ($s->ssl_expires_at && $s->ssl_expires_at->diffInDays(now(), false) <= 30) {
-                $issues->push(['sev' => 'warn', 'ic' => 'ti-lock', 't' => 'SSL bald fällig', 's' => $s->label, 'href' => route('cockpit.domains')]);
-            }
-            if ($s->pending_updates >= 6) {
-                $issues->push(['sev' => 'warn', 'ic' => 'ti-refresh', 't' => $s->pending_updates.' Plugin-Updates offen', 's' => $s->label, 'href' => route('cockpit.seiten')]);
-            }
-            if ($s->domain_expires_at && $s->domain_expires_at->diffInDays(now(), false) <= 40) {
-                $issues->push(['sev' => 'warn', 'ic' => 'ti-world', 't' => 'Domain läuft ab', 's' => $s->label, 'href' => route('cockpit.domains')]);
-            }
-        }
-        $issues = $issues->sortBy(fn ($i) => ['crit' => 0, 'warn' => 1, 'info' => 2][$i['sev']])->values()->take(8);
+        $feed = $this->buildFeed($sites);
 
-        // Ablauf-Timeline
-        $expiries = collect();
-        foreach ($sites->filter(fn ($s) => $s->ssl_expires_at && $s->ssl_expires_at->diffInDays(now(), false) <= 90) as $s) {
-            $d = (int) $s->ssl_expires_at->diffInDays(now(), false);
-            $expiries->push(['tag' => 'SSL', 'name' => $s->label, 'days' => $d, 'tone' => $d <= 7 ? 'crit' : ($d <= 30 ? 'warn' : 'ok'), 'href' => route('cockpit.domains')]);
-        }
-        foreach ($sites->filter(fn ($s) => $s->domain_expires_at && $s->domain_expires_at->diffInDays(now(), false) <= 90) as $s) {
-            $d = (int) $s->domain_expires_at->diffInDays(now(), false);
-            $expiries->push(['tag' => 'DOM', 'name' => $s->label, 'days' => $d, 'tone' => $d <= 30 ? 'crit' : ($d <= 60 ? 'warn' : 'ok'), 'href' => route('cockpit.domains')]);
-        }
-        License::query()->whereNotNull('expires_at')->whereDate('expires_at', '<=', now()->addDays(90))->with('site')->get()->each(function ($l) use (&$expiries) {
-            $d = (int) now()->diffInDays($l->expires_at, false);
-            $expiries->push(['tag' => 'LIZ', 'name' => ($l->product_name ?? 'Lizenz').' · '.($l->site?->label ?? '—'), 'days' => $d, 'tone' => $d <= 14 ? 'crit' : ($d <= 30 ? 'warn' : 'ok'), 'href' => route('cockpit.seiten')]);
-        });
-        $expiries = $expiries->sortBy('days')->values()->take(6);
+        $expiries = $sites
+            ->filter(fn ($s) => ($s->sslDaysLeft() !== null && $s->sslDaysLeft() < 90)
+                             || ($s->domainDaysLeft() !== null && $s->domainDaysLeft() < 90))
+            ->sortBy(fn ($s) => min($s->sslDaysLeft() ?? 9999, $s->domainDaysLeft() ?? 9999))
+            ->take(8);
 
         return view('livewire.cockpit.dashboard', compact(
-            'totalSites', 'totalCustomers', 'critSites', 'warnSites',
-            'sslSoon', 'sslCrit', 'pendingUpdates', 'openTasks',
-            'issues', 'expiries'
+            'totalSites', 'totalCustomers', 'offlineSites',
+            'sslCrit', 'sslWarn', 'domCrit', 'openTasks', 'critTasks', 'pendingUpdates',
+            'feed', 'expiries'
         ));
+    }
+
+    private function buildFeed(Collection $sites): Collection
+    {
+        $items = collect();
+
+        foreach ($sites as $site) {
+            $tier = $this->packageTier($site);
+
+            if ($site->status?->value === 'offline') {
+                $items->push(['severity'=>'critical','type'=>'offline','icon'=>'ti-wifi-off',
+                    'title'=>"{$site->name} ist offline",'customer'=>$site->customer?->name,
+                    'meta'=>'Kein Heartbeat','score'=>0 + $tier,'site_id'=>$site->id]);
+            }
+
+            $ssl = $site->sslDaysLeft();
+            if ($ssl !== null && $ssl < 14) {
+                $items->push(['severity'=>'critical','type'=>'ssl','icon'=>'ti-certificate-off',
+                    'title'=>"SSL kritisch: {$site->name}",'customer'=>$site->customer?->name,
+                    'meta'=>$ssl <= 0 ? 'Abgelaufen' : "Noch {$ssl}d",'score'=>10 + $tier,'site_id'=>$site->id]);
+            } elseif ($ssl !== null && $ssl < 30) {
+                $items->push(['severity'=>'warning','type'=>'ssl','icon'=>'ti-certificate',
+                    'title'=>"SSL bald ablaufend: {$site->name}",'customer'=>$site->customer?->name,
+                    'meta'=>"Noch {$ssl}d",'score'=>20 + $tier,'site_id'=>$site->id]);
+            }
+
+            $dom = $site->domainDaysLeft();
+            if ($dom !== null && $dom < 30) {
+                $items->push(['severity'=>'critical','type'=>'domain','icon'=>'ti-world-off',
+                    'title'=>"Domain kritisch: {$site->name}",'customer'=>$site->customer?->name,
+                    'meta'=>"Noch {$dom}d",'score'=>12 + $tier,'site_id'=>$site->id]);
+            } elseif ($dom !== null && $dom < 60) {
+                $items->push(['severity'=>'warning','type'=>'domain','icon'=>'ti-world',
+                    'title'=>"Domain bald ablaufend: {$site->name}",'customer'=>$site->customer?->name,
+                    'meta'=>"Noch {$dom}d",'score'=>25 + $tier,'site_id'=>$site->id]);
+            }
+
+            $upd = $site->pending_updates ?? 0;
+            if ($upd > 0) {
+                $sev = $upd >= 5 ? 'warning' : 'info';
+                $items->push(['severity'=>$sev,'type'=>'updates','icon'=>'ti-refresh-alert',
+                    'title'=>"{$upd} Update(s) ausstehend: {$site->name}",'customer'=>$site->customer?->name,
+                    'meta'=>"{$upd} Plugins/Core",'score'=>($sev==='warning'?30:40)+$tier,'site_id'=>$site->id]);
+            }
+        }
+
+        return $items->sortBy('score')->values()->take(20);
+    }
+
+    private function packageTier(Site $site): int
+    {
+        $keys = $site->packages->where('pivot.state', 'booked')->pluck('key')->map(fn($k) => strtolower($k))->toArray();
+        foreach (['premium','enterprise','full','komplett'] as $t) {
+            if (collect($keys)->contains(fn($k) => str_contains($k, $t))) return 0;
+        }
+        foreach (['pro','plus','advanced'] as $t) {
+            if (collect($keys)->contains(fn($k) => str_contains($k, $t))) return 1;
+        }
+        return count($keys) > 0 ? 2 : 3;
     }
 }

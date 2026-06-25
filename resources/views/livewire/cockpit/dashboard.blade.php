@@ -1,158 +1,155 @@
 <div>
 {{-- Topbar --}}
 <div class="topbar">
-  <div class="topbar-title">
-    <div class="crumb">Überblick</div>
+  <div class="topbar-left">
+    <span class="crumb">Ops Cockpit</span>
+    <span class="crumb-sep">/</span>
     <h1>Dashboard</h1>
   </div>
-  <div class="tb-search">
-    <span class="ti ti-search" style="font-size:15px"></span>
-    <input type="text" placeholder="Kunden, Seiten, Domains …">
-    <span class="tb-kbd">⌘K</span>
+  <div class="topbar-actions">
+    <a href="{{ route('cockpit.tasks') }}" class="btn ghost sm"><span class="ti ti-plus"></span>Aufgabe</a>
   </div>
-  <button class="iconbtn"><span class="ti ti-refresh"></span></button>
-  <button class="iconbtn"><span class="ti ti-bell"></span>
-    @if($openTasks > 0)<span class="dot"></span>@endif
-  </button>
 </div>
 
 <div class="scroll">
-<div class="pad">
+<div class="pad" style="display:flex;flex-direction:column;gap:20px">
 
-  {{-- KPIs --}}
-  <div class="kpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px">
-    <a href="{{ route('cockpit.kunden') }}" class="card kpi">
-      <div class="lab"><span class="ti ti-users"></span>Kunden</div>
-      <div class="val">{{ $totalCustomers }}</div>
-      <span class="badge b-neutral">aktiv betreut</span>
-    </a>
-    <a href="{{ route('cockpit.seiten') }}" class="card kpi">
-      <div class="lab"><span class="ti ti-world-www"></span>Websites</div>
-      <div class="val">{{ $totalSites }}</div>
-      <span class="badge b-neutral">überwacht</span>
-    </a>
-    <a href="{{ route('cockpit.seiten') }}" class="card kpi {{ $critSites > 0 ? 'edge-crit' : '' }}">
-      <div class="lab"><span class="ti ti-alert-triangle"></span>Kritische Sites</div>
-      <div class="val">{{ $critSites }}</div>
-      <span class="badge {{ $critSites > 0 ? 'b-crit' : 'b-ok' }}">{{ $critSites > 0 ? 'sofort prüfen' : 'alle online' }}</span>
-    </a>
-    <a href="{{ route('cockpit.seiten') }}" class="card kpi {{ $pendingUpdates > 10 ? 'edge-warn' : '' }}">
-      <div class="lab"><span class="ti ti-refresh"></span>Offene Updates</div>
-      <div class="val">{{ $pendingUpdates }}</div>
-      <span class="badge {{ $pendingUpdates > 0 ? 'b-warn' : 'b-ok' }}">Plugins &amp; Themes</span>
-    </a>
-    <a href="{{ route('cockpit.domains') }}" class="card kpi {{ $sslCrit > 0 ? 'edge-crit' : ($sslSoon > 0 ? 'edge-warn' : '') }}">
-      <div class="lab"><span class="ti ti-lock"></span>SSL ≤ 30 Tage</div>
-      <div class="val">{{ $sslSoon + $sslCrit }}</div>
-      <span class="badge {{ $sslCrit > 0 ? 'b-crit' : ($sslSoon > 0 ? 'b-warn' : 'b-ok') }}">bald fällig</span>
-    </a>
-    <a href="{{ route('cockpit.seiten') }}" class="card kpi {{ $warnSites > 0 ? 'edge-warn' : '' }}">
-      <div class="lab"><span class="ti ti-tool"></span>Wartungsmodus</div>
-      <div class="val">{{ $warnSites }}</div>
-      <span class="badge {{ $warnSites > 0 ? 'b-warn' : 'b-ok' }}">Seiten</span>
-    </a>
-    <a href="{{ route('cockpit.seiten') }}" class="card kpi">
-      <div class="lab"><span class="ti ti-check"></span>Aufgaben offen</div>
-      <div class="val">{{ $openTasks }}</div>
-      <span class="badge {{ $openTasks > 0 ? 'b-warn' : 'b-ok' }}">{{ $openTasks > 0 ? 'zu erledigen' : 'alles erledigt' }}</span>
-    </a>
-    <a href="{{ route('cockpit.domains') }}" class="card kpi">
-      <div class="lab"><span class="ti ti-world"></span>Domain-Alerts</div>
-      <div class="val">0</div>
-      <span class="badge b-ok">alle aktiv</span>
-    </a>
+  @if(session('created'))
+  <div class="flash-ok"><span class="ti ti-circle-check"></span>{{ session('created') }}</div>
+  @endif
+
+  {{-- KPI Grid --}}
+  <div class="kpi-grid">
+    <div class="kpi-card k-acc">
+      <div class="kpi-top"><span class="kpi-label">Websites gesamt</span><span class="ti ti-world kpi-icon"></span></div>
+      <div class="kpi-value">{{ $totalSites }}</div>
+      <div class="kpi-sub"><span class="dot d-ok"></span>{{ $totalSites - $offlineSites }} online</div>
+    </div>
+    <div class="kpi-card {{ $offlineSites > 0 ? 'k-crit' : 'k-ok' }}">
+      <div class="kpi-top"><span class="kpi-label">Offline</span><span class="ti ti-wifi-off kpi-icon"></span></div>
+      <div class="kpi-value" style="{{ $offlineSites > 0 ? 'color:var(--crit)' : '' }}">{{ $offlineSites }}</div>
+      <div class="kpi-sub {{ $offlineSites > 0 ? 'crit' : 'ok' }}">
+        {{ $offlineSites > 0 ? 'Sofort handeln' : 'Alle Sites erreichbar' }}
+      </div>
+    </div>
+    <div class="kpi-card {{ $sslCrit > 0 ? 'k-crit' : ($sslWarn > 0 ? 'k-warn' : 'k-ok') }}">
+      <div class="kpi-top"><span class="kpi-label">SSL-Probleme</span><span class="ti ti-certificate kpi-icon"></span></div>
+      <div class="kpi-value" style="{{ $sslCrit > 0 ? 'color:var(--crit)' : ($sslWarn > 0 ? 'color:var(--warn)' : '') }}">{{ $sslCrit + $sslWarn }}</div>
+      <div class="kpi-sub {{ $sslCrit > 0 ? 'crit' : ($sslWarn > 0 ? 'warn' : 'ok') }}">
+        @if($sslCrit > 0) {{ $sslCrit }} kritisch @elseif($sslWarn > 0) {{ $sslWarn }} bald ablaufend @else Alle SSL ok @endif
+      </div>
+    </div>
+    <div class="kpi-card {{ $critTasks > 0 ? 'k-crit' : ($openTasks > 0 ? 'k-warn' : 'k-ok') }}">
+      <div class="kpi-top"><span class="kpi-label">Offene Aufgaben</span><span class="ti ti-checklist kpi-icon"></span></div>
+      <div class="kpi-value">{{ $openTasks }}</div>
+      <div class="kpi-sub {{ $critTasks > 0 ? 'crit' : ($openTasks > 0 ? 'warn' : 'ok') }}">
+        @if($critTasks > 0) {{ $critTasks }} kritisch @elseif($openTasks > 0) Handlungsbedarf @else Nichts offen @endif
+      </div>
+    </div>
+    <div class="kpi-card {{ $pendingUpdates >= 10 ? 'k-warn' : 'k-acc' }}">
+      <div class="kpi-top"><span class="kpi-label">Ausstehende Updates</span><span class="ti ti-refresh-alert kpi-icon"></span></div>
+      <div class="kpi-value">{{ $pendingUpdates }}</div>
+      <div class="kpi-sub {{ $pendingUpdates >= 10 ? 'warn' : '' }}">über {{ $totalSites }} Sites</div>
+    </div>
+    <div class="kpi-card {{ $domCrit > 0 ? 'k-crit' : 'k-ok' }}">
+      <div class="kpi-top"><span class="kpi-label">Domain-Probleme</span><span class="ti ti-world-off kpi-icon"></span></div>
+      <div class="kpi-value" style="{{ $domCrit > 0 ? 'color:var(--crit)' : '' }}">{{ $domCrit }}</div>
+      <div class="kpi-sub {{ $domCrit > 0 ? 'crit' : 'ok' }}">{{ $domCrit > 0 ? 'Ablauf in < 30 Tagen' : 'Alle Domains ok' }}</div>
+    </div>
+    <div class="kpi-card k-acc">
+      <div class="kpi-top"><span class="kpi-label">Kunden</span><span class="ti ti-building-store kpi-icon"></span></div>
+      <div class="kpi-value">{{ $totalCustomers }}</div>
+      <div class="kpi-sub">aktive Kunden</div>
+    </div>
+    <div class="kpi-card k-ok">
+      <div class="kpi-top"><span class="kpi-label">Letzter Scan</span><span class="ti ti-clock kpi-icon"></span></div>
+      <div class="kpi-value" style="font-size:18px;font-weight:700">{{ now()->format('H:i') }}</div>
+      <div class="kpi-sub ok">Heute, {{ now()->format('d.m.Y') }}</div>
+    </div>
   </div>
 
-  {{-- Unteres Grid --}}
-  <div class="grid-12">
+  {{-- Problem Feed + Expiries --}}
+  <div style="display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start">
 
-    {{-- Braucht Aufmerksamkeit --}}
-    <div class="col-8 card">
+    {{-- Prioritäts-Feed --}}
+    <div class="card">
       <div class="sec-h">
-        <span class="ti ti-flame"></span>
-        <h3>Braucht Aufmerksamkeit</h3>
-        <span class="cnt">{{ $issues->count() }}</span>
-        <a href="{{ route('cockpit.seiten') }}" class="more">Alle Sites →</a>
+        <span class="ti ti-alert-triangle"></span>
+        <h3>Handlungsbedarf</h3>
+        @if($feed->count() > 0)
+          <span class="cnt">{{ $feed->count() }}</span>
+        @endif
+        <a href="{{ route('cockpit.tasks') }}" class="btn ghost sm ml-auto">Alle Aufgaben</a>
       </div>
-      @forelse ($issues as $issue)
-      <a href="{{ $issue['href'] }}" class="prow">
-        <div class="sev {{ $issue['sev'] }}"><span class="ti {{ $issue['ic'] }}"></span></div>
-        <div>
-          <div class="t">{{ $issue['t'] }}</div>
-          <div class="s">{{ $issue['s'] }}</div>
+
+      @forelse($feed as $item)
+      @php
+        $sevClass = match($item['severity']) { 'critical'=>'crit','warning'=>'warn',default=>'info' };
+        $dotClass = match($item['severity']) { 'critical'=>'d-crit','warning'=>'d-warn',default=>'d-info' };
+      @endphp
+      <div class="prow">
+        <span class="ti {{ $item['icon'] }} prow-icon text-{{ $sevClass }}"></span>
+        <div class="prow-body">
+          <div class="prow-title">{{ $item['title'] }}</div>
+          <div class="prow-meta">
+            @if($item['customer'])
+              <span>{{ $item['customer'] }}</span>
+              <span class="sep">·</span>
+            @endif
+            <span>{{ $item['meta'] }}</span>
+            <span class="sep">·</span>
+            <span class="badge badge-{{ $sevClass }}" style="font-size:10px">
+              {{ match($item['severity']) { 'critical'=>'Sofort','warning'=>'Bald',default=>'Info' } }}
+            </span>
+          </div>
         </div>
-        <span class="badge {{ $issue['sev'] === 'crit' ? 'b-crit' : ($issue['sev'] === 'warn' ? 'b-warn' : 'b-info') }}">
-          {{ $issue['sev'] === 'crit' ? 'Kritisch' : ($issue['sev'] === 'warn' ? 'Warnung' : 'Info') }}
-        </span>
-        <div class="meta"><b>jetzt</b>erkannt</div>
-      </a>
+        <div class="prow-actions">
+          <a href="{{ route('cockpit.tasks', ['newSiteId' => $item['site_id']]) }}"
+             class="btn ghost sm"><span class="ti ti-plus"></span>Task</a>
+        </div>
+      </div>
       @empty
-      <div style="padding:48px 18px;text-align:center;color:var(--dim)">
-        <div style="font-size:28px;color:var(--ok);margin-bottom:12px">✓</div>
-        <div style="font-weight:600">Alles in Ordnung</div>
-        <div class="faint" style="font-size:12px;margin-top:4px">Keine offenen Probleme — ruhige Lage.</div>
+      <div class="empty">
+        <span class="ti ti-circle-check" style="color:var(--ok)"></span>
+        <h3>Alles in Ordnung</h3>
+        <p>Kein aktueller Handlungsbedarf. Alle Sites laufen normal.</p>
       </div>
       @endforelse
     </div>
 
-    {{-- Anstehende Abläufe --}}
-    <div class="col-4 card">
+    {{-- Upcoming Expirations --}}
+    <div class="card">
       <div class="sec-h">
-        <span class="ti ti-calendar-due"></span>
+        <span class="ti ti-calendar-event"></span>
         <h3>Anstehende Abläufe</h3>
       </div>
-      @forelse ($expiries as $e)
-      <a href="{{ $e['href'] }}" class="prow" style="grid-template-columns:auto 1fr auto">
-        <div class="sev {{ $e['tone'] }}" style="font-size:9px;font-weight:800;letter-spacing:.04em">{{ $e['tag'] }}</div>
-        <div>
-          <div class="t" style="font-size:12.5px">{{ $e['name'] }}</div>
-          <div class="s">{{ $e['tag'] === 'SSL' ? 'Zertifikat' : ($e['tag'] === 'DOM' ? 'Domain' : 'Lizenz') }}</div>
+      @forelse($expiries as $s)
+      @php
+        $ssl = $s->sslDaysLeft();
+        $dom = $s->domainDaysLeft();
+        $days = min($ssl ?? 9999, $dom ?? 9999);
+        $cls = $days < 14 ? 'crit' : ($days < 30 ? 'warn' : 'ok');
+      @endphp
+      <div class="prow" style="padding:10px 16px">
+        <span class="dot d-{{ $cls }}" style="margin-top:5px"></span>
+        <div class="prow-body">
+          <div style="font-size:13px;font-weight:600">{{ $s->name }}</div>
+          <div style="font-size:11.5px;color:var(--dim);margin-top:2px">
+            @if($ssl !== null && $ssl < 90) SSL: <span class="days-{{ $cls }}">{{ $ssl }}d</span>&ensp; @endif
+            @if($dom !== null && $dom < 90) Domain: <span class="days-{{ $cls }}">{{ $dom }}d</span> @endif
+          </div>
         </div>
-        <div class="meta">
-          <b style="color:{{ $e['tone'] === 'crit' ? 'var(--crit)' : ($e['tone'] === 'warn' ? 'var(--warn)' : 'var(--ok)') }}">
-            {{ $e['days'] }}d
-          </b>
-          verbleibend
-        </div>
-      </a>
+      </div>
       @empty
-      <div style="padding:30px 18px;text-align:center;color:var(--dim)">
-        <div style="font-size:22px;color:var(--ok);margin-bottom:8px">✓</div>
-        <div style="font-size:13px">Keine baldigen Abläufe</div>
+      <div class="empty" style="padding:32px 16px">
+        <span class="ti ti-calendar-check" style="color:var(--ok)"></span>
+        <p style="font-size:12px">Keine Abläufe in den nächsten 90 Tagen.</p>
       </div>
       @endforelse
     </div>
 
-    {{-- Letzte Aktivität (statisch / Demo) --}}
-    <div class="col-12 card">
-      <div class="sec-h">
-        <span class="ti ti-activity"></span>
-        <h3>Systemaktivität</h3>
-        <span class="more">Verlauf →</span>
-      </div>
-      <div class="feed">
-        <div class="ic b-ok"><span class="ti ti-circle-check"></span></div>
-        <div><div class="tx">Reporter-Heartbeat von <b>{{ $totalSites }} Sites</b> empfangen</div><div class="tm">Heute</div></div>
-      </div>
-      <div class="feed">
-        <div class="ic b-info"><span class="ti ti-refresh"></span></div>
-        <div><div class="tx"><b>{{ $pendingUpdates }} Plugin-Updates</b> stehen offen</div><div class="tm">Stand jetzt</div></div>
-      </div>
-      @if($sslSoon + $sslCrit > 0)
-      <div class="feed">
-        <div class="ic b-warn"><span class="ti ti-lock-exclamation"></span></div>
-        <div><div class="tx"><b>{{ $sslSoon + $sslCrit }} SSL-Zertifikate</b> laufen in ≤ 30 Tagen ab</div><div class="tm">Prüfen</div></div>
-      </div>
-      @endif
-      @if($critSites > 0)
-      <div class="feed">
-        <div class="ic b-crit"><span class="ti ti-plug-connected-x"></span></div>
-        <div><div class="tx"><b>{{ $critSites }} Website{{ $critSites > 1 ? 's' : '' }}</b> {{ $critSites > 1 ? 'sind' : 'ist' }} offline</div><div class="tm">Sofort prüfen</div></div>
-      </div>
-      @endif
-    </div>
-
   </div>
+
 </div>
 </div>
 </div>

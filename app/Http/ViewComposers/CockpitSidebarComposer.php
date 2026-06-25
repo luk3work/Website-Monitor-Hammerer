@@ -11,15 +11,18 @@ class CockpitSidebarComposer
     public function compose(View $view): void
     {
         $criticalCount = Task::query()
-            ->whereNull('resolved_at')
-            ->where('severity', 'crit')
+            ->whereIn('status', ['open', 'in_progress', 'blocked'])
+            ->where('severity', 'critical')
             ->count();
 
-        $problemCustomers = Site::query()
+        $openTaskCount = Task::query()
+            ->whereIn('status', ['open', 'in_progress', 'blocked'])
+            ->count();
+
+        $problemSites = Site::query()
             ->where('is_archived', false)
             ->whereIn('status', ['offline'])
-            ->distinct('customer_id')
-            ->count('customer_id');
+            ->count();
 
         $domainAlerts = Site::query()
             ->where('is_archived', false)
@@ -29,6 +32,6 @@ class CockpitSidebarComposer
             })
             ->count();
 
-        $view->with(compact('criticalCount', 'problemCustomers', 'domainAlerts'));
+        $view->with(compact('criticalCount', 'openTaskCount', 'problemSites', 'domainAlerts'));
     }
 }

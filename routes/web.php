@@ -7,14 +7,14 @@ use App\Livewire\Cockpit\Domains;
 use App\Livewire\Cockpit\Einstellungen;
 use App\Livewire\Cockpit\Kunden;
 use App\Livewire\Cockpit\Seiten;
+use App\Livewire\Cockpit\Tasks;
 use Illuminate\Support\Facades\Route;
 
-// Startseite → Cockpit weiterleiten
 Route::get('/', fn () => redirect()->route('cockpit.dashboard'));
 
-// Cockpit – geschützt hinter Auth
 Route::middleware('auth')->prefix('cockpit')->name('cockpit.')->group(function () {
     Route::get('/',              Dashboard::class)->name('dashboard');
+    Route::get('/tasks',         Tasks::class)->name('tasks');
     Route::get('/kunden',        Kunden::class)->name('kunden');
     Route::get('/seiten',        Seiten::class)->name('seiten');
     Route::get('/domains',       Domains::class)->name('domains');

@@ -9,38 +9,48 @@ use Livewire\Component;
 #[Layout('layouts.cockpit')]
 class Domains extends Component
 {
-    public string $filter = 'all';
-    public string $search = '';
-
-    public function setFilter(string $f): void { $this->filter = $f; }
+    public string $search    = '';
+    public string $filterSsl = '';
+    public string $filterDom = '';
 
     public function render()
     {
-        $rows = Site::query()->with('customer')->where('is_archived', false)->get()
-            ->filter(fn ($s) => $this->search === '' || str_contains(mb_strtolower($s->label.$s->url), mb_strtolower($this->search)))
-            ->map(function (Site $s) {
-                $sslDays = $s->ssl_expires_at  ? (int)$s->ssl_expires_at->diffInDays(now(), false)  : null;
-                $domDays = $s->domain_expires_at ? (int)$s->domain_expires_at->diffInDays(now(), false) : null;
-                $sslTone = $sslDays === null ? 'neutral' : ($sslDays < 0 ? 'crit' : ($sslDays <= 14 ? 'crit' : ($sslDays <= 45 ? 'warn' : 'ok')));
-                $domTone = $domDays === null ? 'neutral' : ($domDays < 0 ? 'crit' : ($domDays <= 30 ? 'crit' : ($domDays <= 90 ? 'warn' : 'ok')));
-                $worst   = ($sslTone === 'crit' || $domTone === 'crit') ? 'crit' : (($sslTone === 'warn' || $domTone === 'warn') ? 'warn' : ($sslTone === 'neutral' && $domTone === 'neutral' ? 'neutral' : 'ok'));
-                return compact('s', 'sslDays', 'domDays', 'sslTone', 'domTone', 'worst');
-            })
-            ->filter(fn ($r) => match($this->filter) {
-                'critical' => $r['worst'] === 'crit',
-                'warning'  => in_array($r['worst'], ['warn', 'crit']),
-                'ok'       => $r['worst'] === 'ok',
-                default    => true,
-            })
-            ->sortBy(fn ($r) => match($r['worst']) { 'crit' => 0, 'warn' => 1, default => 2 });
+        $query = Site::query()
+            ->with(['customer'])
+            ->where('is_archived', false);
 
-        $summary = [
-            'total'    => $rows->count(),
-            'critical' => $rows->where('worst', 'crit')->count(),
-            'warning'  => $rows->where('worst', 'warn')->count(),
-            'ok'       => $rows->where('worst', 'ok')->count(),
-        ];
+        if ($this->search) {
+            $query->where(fn ($q) =>
+                $q->where('name', 'like', "%{$this->search}%")
+                  ->orWhere('domain', 'like', "%{$this->search}%")
+                  ->orWhereHas('customer', fn ($q2) => $q2->where('name', 'like', "%{$this->search}%"))
+            );
+        }
 
-        return view('livewire.cockpit.domains', compact('rows', 'summary'));
+        if ($this->filterSsl === 'crit') {
+            $query->whereNotNull('ssl_expires_at')->whereDate('ssl_expires_at', '<=', now()->addDays(14));
+        } elseif ($this->filterSsl === 'warn') {
+            $query->whereNotNull('ssl_expires_at')
+                ->whereDate('ssl_expires_at', '>', now()->addDays(14))
+                ->whereDate('ssl_expires_at', '<=', now()->addDays(30));
+        }
+
+        if ($this->filterDom === 'crit') {
+            $query->whereNotNull('domain_expires_at')->whereDate('domain_expires_at', '<=', now()->addDays(30));
+        } elseif ($this->filterDom === 'warn') {
+            $query->whereNotNull('domain_expires_at')
+                ->whereDate('domain_expires_at', '>', now()->addDays(30))
+                ->whereDate('domain_expires_at', '<=', now()->addDays(60));
+        }
+
+        $sites = $query->orderBy('name')->get();
+
+        // Summary counts
+        $sslCrit  = Site::where('is_archived', false)->whereNotNull('ssl_expires_at')->whereDate('ssl_expires_at', '<=', now()->addDays(14))->count();
+        $sslWarn  = Site::where('is_archived', false)->whereNotNull('ssl_expires_at')->whereDate('ssl_expires_at', '>', now()->addDays(14))->whereDate('ssl_expires_at', '<=', now()->addDays(30))->count();
+        $domCrit  = Site::where('is_archived', false)->whereNotNull('domain_expires_at')->whereDate('domain_expires_at', '<=', now()->addDays(30))->count();
+        $domWarn  = Site::where('is_archived', false)->whereNotNull('domain_expires_at')->whereDate('domain_expires_at', '>', now()->addDays(30))->whereDate('domain_expires_at', '<=', now()->addDays(60))->count();
+
+        return view('livewire.cockpit.domains', compact('sites', 'sslCrit', 'sslWarn', 'domCrit', 'domWarn'));
     }
 }

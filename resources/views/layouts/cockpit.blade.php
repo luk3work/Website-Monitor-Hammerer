@@ -3,82 +3,122 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ops Cockpit</title>
+<title>{{ config('app.name', 'Ops Cockpit') }}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css" rel="stylesheet">
-<link href="{{ asset('css/cockpit.css') }}?v={{ filemtime(public_path('css/cockpit.css')) }}" rel="stylesheet">
-@vite(['resources/js/app.js'])
+<link href="{{ asset('css/cockpit.css') }}?v={{ @filemtime(public_path('css/cockpit.css')) }}" rel="stylesheet">
 @livewireStyles
 </head>
 <body>
+
 <div class="app">
 
-  {{-- ====== Sidebar ====== --}}
+  {{-- ===== Rail (Sidebar) ===== --}}
   <aside class="rail">
+
+    {{-- Brand --}}
     <div class="brand">
-      <div class="logo">O</div>
-      <div>
-        <b>Ops Cockpit</b>
-        <span>Agentur-Control-Center</span>
-      </div>
+      <div class="brand-icon"><span class="ti ti-pulse"></span></div>
+      <div class="brand-name">Ops<span>Cockpit</span></div>
     </div>
 
-    <nav class="nav">
-      <div class="lbl">Überblick</div>
-      <a href="{{ route('cockpit.dashboard') }}" class="{{ request()->routeIs('cockpit.dashboard') ? 'active' : '' }}">
-        <span class="ti ti-layout-dashboard"></span><span>Dashboard</span>
-        @if($criticalCount > 0)
-          <span class="nbadge">{{ $criticalCount }}</span>
+    {{-- Navigation --}}
+    <nav class="nav" aria-label="Hauptnavigation">
+
+      <a href="{{ route('cockpit.dashboard') }}"
+         class="nav-item {{ request()->routeIs('cockpit.dashboard') ? 'active' : '' }}">
+        <span class="ti ti-layout-dashboard"></span>
+        <span>Dashboard</span>
+        @if(($criticalCount ?? 0) > 0)
+          <span class="nav-badge" aria-label="{{ $criticalCount }} kritische Probleme">{{ $criticalCount }}</span>
         @endif
       </a>
 
-      <div class="lbl">Betrieb</div>
-      <a href="{{ route('cockpit.kunden') }}" class="{{ request()->routeIs('cockpit.kunden') ? 'active' : '' }}">
-        <span class="ti ti-users"></span><span>Kunden</span>
-        @if($problemCustomers > 0)
-          <span class="nbadge amber">{{ $problemCustomers }}</span>
-        @endif
-      </a>
-      <a href="{{ route('cockpit.seiten') }}" class="{{ request()->routeIs('cockpit.seiten') ? 'active' : '' }}">
-        <span class="ti ti-world-www"></span><span>Seiten</span>
-      </a>
-      <a href="{{ route('cockpit.domains') }}" class="{{ request()->routeIs('cockpit.domains') ? 'active' : '' }}">
-        <span class="ti ti-world"></span><span>Domains</span>
-        @if($domainAlerts > 0)
-          <span class="nbadge">{{ $domainAlerts }}</span>
+      <a href="{{ route('cockpit.tasks') }}"
+         class="nav-item {{ request()->routeIs('cockpit.tasks') ? 'active' : '' }}">
+        <span class="ti ti-checklist"></span>
+        <span>Aufgaben</span>
+        @if(($openTaskCount ?? 0) > 0)
+          <span class="nav-badge warn" aria-label="{{ $openTaskCount }} offene Aufgaben">{{ $openTaskCount }}</span>
         @endif
       </a>
 
-      <div class="lbl">Verwaltung</div>
-      <a href="{{ route('cockpit.benutzer') }}" class="{{ request()->routeIs('cockpit.benutzer') ? 'active' : '' }}">
-        <span class="ti ti-user-cog"></span><span>Benutzer</span>
+      <div class="rail-sep"></div>
+      <div class="nav-section-label">Überwachung</div>
+
+      <a href="{{ route('cockpit.kunden') }}"
+         class="nav-item {{ request()->routeIs('cockpit.kunden*') ? 'active' : '' }}">
+        <span class="ti ti-building-store"></span>
+        <span>Kunden</span>
       </a>
-      <a href="{{ route('cockpit.berichte') }}" class="{{ request()->routeIs('cockpit.berichte') ? 'active' : '' }}">
-        <span class="ti ti-file-analytics"></span><span>Berichte</span>
+
+      <a href="{{ route('cockpit.seiten') }}"
+         class="nav-item {{ request()->routeIs('cockpit.seiten') ? 'active' : '' }}">
+        <span class="ti ti-world"></span>
+        <span>Websites</span>
+        @if(($problemSites ?? 0) > 0)
+          <span class="nav-badge" aria-label="{{ $problemSites }} Problem-Sites">{{ $problemSites }}</span>
+        @endif
       </a>
+
+      <a href="{{ route('cockpit.domains') }}"
+         class="nav-item {{ request()->routeIs('cockpit.domains') ? 'active' : '' }}">
+        <span class="ti ti-certificate"></span>
+        <span>Domains & SSL</span>
+        @if(($domainAlerts ?? 0) > 0)
+          <span class="nav-badge warn">{{ $domainAlerts }}</span>
+        @endif
+      </a>
+
+      <div class="rail-sep"></div>
+      <div class="nav-section-label">Berichte</div>
+
+      <a href="{{ route('cockpit.berichte') }}"
+         class="nav-item {{ request()->routeIs('cockpit.berichte') ? 'active' : '' }}">
+        <span class="ti ti-chart-bar"></span>
+        <span>Berichte</span>
+      </a>
+
+      <div class="rail-sep"></div>
+      <div class="nav-section-label">System</div>
+
+      <a href="{{ route('cockpit.benutzer') }}"
+         class="nav-item {{ request()->routeIs('cockpit.benutzer') ? 'active' : '' }}">
+        <span class="ti ti-users"></span>
+        <span>Benutzer</span>
+      </a>
+
+      <a href="{{ route('cockpit.einstellungen') }}"
+         class="nav-item {{ request()->routeIs('cockpit.einstellungen') ? 'active' : '' }}">
+        <span class="ti ti-settings"></span>
+        <span>Einstellungen</span>
+      </a>
+
     </nav>
 
-    <div class="rail-foot">
-      <a href="{{ route('cockpit.einstellungen') }}" style="padding:0;display:block">
-        <div class="me" style="background:{{ request()->routeIs('cockpit.einstellungen') ? 'var(--accsoft)' : '' }}">
-          <span class="ti ti-settings" style="font-size:18px;color:var(--dim)"></span>
-          <div><div class="nm">Einstellungen</div></div>
+    {{-- User Footer --}}
+    <div class="rail-footer">
+      <div class="user-pill">
+        @php
+          $u = auth()->user();
+          $colors = ['#0EA5E9','#10B981','#A855F7','#F59E0B','#EF4444'];
+          $col = $colors[crc32($u->name ?? '') % 5];
+        @endphp
+        <div class="user-av" style="background:{{ $col }}">{{ strtoupper(substr($u->name ?? 'U', 0, 2)) }}</div>
+        <div class="user-info">
+          <div class="user-name">{{ $u->name ?? 'Benutzer' }}</div>
+          <div class="user-role">{{ $u->role ?? 'admin' }}</div>
         </div>
-      </a>
-      <div class="me">
-        <div class="av">{{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 2)) }}</div>
-        <div>
-          <div class="nm">{{ Auth::user()->name ?? 'Benutzer' }}</div>
-          <div class="rl">{{ Auth::user()->role ?? 'Administrator' }}</div>
-        </div>
+        <a href="{{ route('filament.admin.auth.logout') }}" class="ti ti-logout" style="font-size:15px;color:var(--faint);margin-left:auto" title="Abmelden" wire:navigate></a>
       </div>
     </div>
+
   </aside>
 
-  {{-- ====== Main Stage ====== --}}
-  <main class="stage">
+  {{-- ===== Stage (Main Content) ===== --}}
+  <main class="stage" id="main-content">
     {{ $slot }}
   </main>
 

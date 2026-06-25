@@ -1,101 +1,127 @@
 <div>
 <div class="topbar">
-  <div class="topbar-title">
-    <div class="crumb">Betrieb</div>
-    <h1>Seiten</h1>
+  <div class="topbar-left">
+    <span class="crumb">Überwachung</span>
+    <span class="crumb-sep">/</span>
+    <h1>Websites</h1>
   </div>
-  <button class="btn acc"><span class="ti ti-plus"></span>Website verbinden</button>
-  <button class="iconbtn"><span class="ti ti-refresh"></span></button>
+  <div class="topbar-actions">
+    <div class="topbar-search">
+      <span class="ti ti-search"></span>
+      <input type="text" wire:model.live.debounce.300ms="search" placeholder="Site oder Kunde suchen…">
+    </div>
+  </div>
 </div>
 
 <div class="scroll">
-<div class="pad">
+<div class="pad" style="display:flex;flex-direction:column;gap:16px">
 
+  {{-- Summary chips --}}
+  <div class="chip-row">
+    <span class="chip {{ !$filterStatus ? 'active' : '' }}" wire:click="$set('filterStatus','')">
+      Alle <strong style="margin-left:3px">{{ $totalCount }}</strong>
+    </span>
+    <span class="chip {{ $filterStatus==='offline' ? 'active-crit' : '' }}" wire:click="$set('filterStatus', $filterStatus==='offline'?'':'offline')">
+      <span class="dot d-crit"></span>Offline <strong style="margin-left:3px">{{ $offlineCount }}</strong>
+    </span>
+    <span class="chip {{ $filterStatus==='online' ? 'active-ok' : '' }}" wire:click="$set('filterStatus', $filterStatus==='online'?'':'online')">
+      <span class="dot d-ok"></span>Online
+    </span>
+    <span class="chip {{ $filterSsl==='crit' ? 'active-crit' : '' }}" wire:click="$set('filterSsl', $filterSsl==='crit'?'':'crit')">
+      <span class="ti ti-certificate-off"></span>SSL kritisch <strong style="margin-left:3px">{{ $sslCritCount }}</strong>
+    </span>
+    <span class="chip {{ $filterSsl==='warn' ? 'active-warn' : '' }}" wire:click="$set('filterSsl', $filterSsl==='warn'?'':'warn')">
+      <span class="ti ti-certificate"></span>SSL bald
+    </span>
+  </div>
+
+  {{-- Table --}}
   <div class="card">
-    <div class="sec-h">
-      <span class="ti ti-world-www"></span>
-      <h3>Alle Websites</h3>
-      <span class="cnt">{{ $sites->count() }}</span>
-      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
-        <div class="tb-search" style="width:220px;margin-left:0">
-          <span class="ti ti-search" style="font-size:14px"></span>
-          <input type="text" placeholder="Suchen …" wire:model.live.debounce.250ms="search">
-        </div>
-        <button class="chip {{ $filter === 'all'      ? 'on' : '' }}" wire:click="setFilter('all')">Alle</button>
-        <button class="chip {{ $filter === 'problems' ? 'on' : '' }}" wire:click="setFilter('problems')">Probleme</button>
-        <button class="chip {{ $filter === 'offline'  ? 'on' : '' }}" wire:click="setFilter('offline')">Offline</button>
-      </div>
-    </div>
+    @if($sites->count() > 0)
     <table class="tbl">
       <thead>
         <tr>
-          <th>Website</th>
           <th>Status</th>
-          <th>SSL</th>
+          <th>Website</th>
+          <th>Kunde</th>
           <th>CMS</th>
+          <th>SSL</th>
+          <th>Domain</th>
           <th>Updates</th>
-          <th>Domain läuft ab</th>
-          <th>Zustand</th>
-          <th></th>
+          <th>Pakete</th>
+          <th>Zuletzt</th>
         </tr>
       </thead>
       <tbody>
-        @forelse ($sites as $s)
+        @foreach($sites as $site)
         @php
-          $statusVal = $s->status->value;
-          $sslDays   = $s->ssl_expires_at ? (int)$s->ssl_expires_at->diffInDays(now(), false) : null;
-          $domDays   = $s->domain_expires_at ? (int)$s->domain_expires_at->diffInDays(now(), false) : null;
-          $worst = $statusVal === 'offline' ? 'crit'
-                 : (($statusVal === 'maintenance' || ($sslDays !== null && $sslDays <= 30) || $s->pending_updates >= 5) ? 'warn'
-                 : 'ok');
+          $stDot = match($site->status?->value) { 'online'=>'ok','offline'=>'crit','maintenance'=>'maint',default=>'off' };
+          $ssl = $site->sslDaysLeft();
+          $sslCls = $ssl !== null && $ssl < 14 ? 'crit' : ($ssl !== null && $ssl < 30 ? 'warn' : ($ssl !== null ? 'ok' : 'off'));
+          $dom = $site->domainDaysLeft();
+          $domCls = $dom !== null && $dom < 30 ? 'crit' : ($dom !== null && $dom < 60 ? 'warn' : ($dom !== null ? 'ok' : 'off'));
+          $bookedPkgs = $site->packages->where('pivot.state','booked');
         @endphp
-        <tr style="cursor:pointer">
+        <tr>
           <td>
-            <div style="display:flex;align-items:center;gap:11px">
-              <span class="dot {{ $statusVal === 'online' ? 'd-ok' : ($statusVal === 'offline' ? 'd-crit' : 'd-warn') }}"></span>
-              <div>
-                <div style="font-weight:600;font-size:13px">{{ $s->label }}</div>
-                <div class="faint" style="font-size:11.5px">{{ $s->customer?->name }}</div>
-              </div>
-            </div>
+            <span class="dot {{ $stDot === 'maint' ? 'd-maint' : 'd-'.$stDot }}" title="{{ $site->status?->label() }}"></span>
           </td>
           <td>
-            <span class="badge {{ $statusVal === 'online' ? 'b-ok' : ($statusVal === 'offline' ? 'b-crit' : 'b-warn') }}">
-              {{ match($statusVal) { 'online' => 'Online', 'offline' => 'Offline', 'maintenance' => 'Wartung', default => 'Unbekannt' } }}
+            <div style="font-weight:600">{{ $site->name }}</div>
+            @if($site->domain)
+            <div style="font-size:11.5px;color:var(--faint)">{{ $site->domain }}</div>
+            @endif
+          </td>
+          <td>
+            <a href="{{ route('cockpit.kunden') }}" style="color:var(--dim)">{{ $site->customer?->name ?? '–' }}</a>
+          </td>
+          <td><span style="color:var(--dim);font-size:12.5px">{{ $site->cms_type ?? '–' }}</span></td>
+          <td>
+            @if($ssl !== null)
+              <span class="days-{{ $sslCls }}">{{ $ssl }}d</span>
+            @else
+              <span class="days-off">–</span>
+            @endif
+          </td>
+          <td>
+            @if($dom !== null)
+              <span class="days-{{ $domCls }}">{{ $dom }}d</span>
+            @else
+              <span class="days-off">–</span>
+            @endif
+          </td>
+          <td>
+            @if(($site->pending_updates ?? 0) > 0)
+              <span class="badge badge-{{ $site->pending_updates >= 5 ? 'warn' : 'info' }}">{{ $site->pending_updates }}</span>
+            @else
+              <span style="color:var(--faint)">–</span>
+            @endif
+          </td>
+          <td>
+            @foreach($bookedPkgs->take(2) as $pkg)
+              <span class="pkg-chip booked" style="font-size:10.5px">{{ Str::limit($pkg->name,18) }}</span>
+            @endforeach
+            @if($bookedPkgs->count() > 2)
+              <span class="pkg-chip" style="font-size:10.5px">+{{ $bookedPkgs->count()-2 }}</span>
+            @endif
+          </td>
+          <td>
+            <span style="font-size:12px;color:var(--faint)">
+              {{ $site->last_seen_at ? $site->last_seen_at->diffForHumans(null, true) : '–' }}
             </span>
           </td>
-          <td style="color:{{ $sslDays === null ? 'var(--faint)' : ($sslDays <= 7 ? 'var(--crit)' : ($sslDays <= 30 ? 'var(--warn)' : 'var(--dim)')) }}">
-            {{ $sslDays === null ? '–' : $sslDays.'d' }}
-          </td>
-          <td class="muted">WP {{ $s->wp_version ?? '–' }}</td>
-          <td>
-            @if($s->pending_updates > 0)
-              <span class="badge b-warn">{{ $s->pending_updates }}</span>
-            @else
-              <span class="faint">0</span>
-            @endif
-          </td>
-          <td style="color:{{ $domDays === null ? 'var(--faint)' : ($domDays <= 30 ? 'var(--crit)' : ($domDays <= 90 ? 'var(--warn)' : 'var(--dim)')) }}">
-            {{ $domDays === null ? '–' : $domDays.'d' }}
-          </td>
-          <td>
-            @if($worst === 'crit')
-              <span class="badge b-crit">Kritisch</span>
-            @elseif($worst === 'warn')
-              <span class="badge b-warn">Warnung</span>
-            @else
-              <span class="ti ti-circle-check" style="color:var(--ok)"></span>
-            @endif
-          </td>
-          <td>
-            <a href="{{ route('cockpit.kunden') }}" class="btn ghost" style="padding:5px 9px;font-size:11.5px">Details</a>
-          </td>
         </tr>
-        @empty
-        <tr><td colspan="8" style="text-align:center;padding:48px;color:var(--faint)">Keine Websites gefunden.</td></tr>
-        @endforelse
+        @endforeach
       </tbody>
     </table>
+    <div style="padding:12px 16px;border-top:1px solid var(--line)">{{ $sites->links() }}</div>
+    @else
+    <div class="empty">
+      <span class="ti ti-world-off"></span>
+      <h3>Keine Sites gefunden</h3>
+      <p>Keine Websites mit diesen Filtern.</p>
+    </div>
+    @endif
   </div>
 
 </div>

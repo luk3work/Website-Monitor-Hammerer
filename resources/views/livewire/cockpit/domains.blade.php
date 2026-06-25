@@ -1,128 +1,124 @@
 <div>
 <div class="topbar">
-  <div class="topbar-title">
-    <div class="crumb">Betrieb</div>
-    <h1>Domains &amp; SSL</h1>
+  <div class="topbar-left">
+    <span class="crumb">Überwachung</span>
+    <span class="crumb-sep">/</span>
+    <h1>Domains & SSL</h1>
   </div>
-  <button class="iconbtn"><span class="ti ti-refresh"></span></button>
+  <div class="topbar-actions">
+    <div class="topbar-search">
+      <span class="ti ti-search"></span>
+      <input type="text" wire:model.live.debounce.300ms="search" placeholder="Domain oder Kunde…">
+    </div>
+  </div>
 </div>
 
 <div class="scroll">
-<div class="pad" style="display:flex;flex-direction:column;gap:18px">
+<div class="pad" style="display:flex;flex-direction:column;gap:16px">
 
-  {{-- Summary-Chips + Filter --}}
-  <div class="dom-chips">
-    <div class="dom-chip neutral">
-      <span class="num">{{ $summary['total'] }}</span><span class="lbl">Gesamt</span>
+  {{-- Summary --}}
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+    <div class="kpi-card {{ $sslCrit>0?'k-crit':'k-ok' }}" style="padding:14px 16px">
+      <div class="kpi-top"><span class="kpi-label">SSL kritisch</span><span class="ti ti-certificate-off kpi-icon"></span></div>
+      <div class="kpi-value" style="font-size:24px;{{ $sslCrit>0?'color:var(--crit)':'' }}">{{ $sslCrit }}</div>
+      <div class="kpi-sub {{ $sslCrit>0?'crit':'' }}">{{ $sslCrit>0?'< 14 Tage':'Alles ok' }}</div>
     </div>
-    <div class="dom-chip crit">
-      <span class="num">{{ $summary['critical'] }}</span><span class="lbl">Kritisch</span>
+    <div class="kpi-card {{ $sslWarn>0?'k-warn':'k-ok' }}" style="padding:14px 16px">
+      <div class="kpi-top"><span class="kpi-label">SSL bald</span><span class="ti ti-certificate kpi-icon"></span></div>
+      <div class="kpi-value" style="font-size:24px;{{ $sslWarn>0?'color:var(--warn)':'' }}">{{ $sslWarn }}</div>
+      <div class="kpi-sub {{ $sslWarn>0?'warn':'' }}">14–30 Tage</div>
     </div>
-    <div class="dom-chip warn">
-      <span class="num">{{ $summary['warning'] }}</span><span class="lbl">Bald fällig</span>
+    <div class="kpi-card {{ $domCrit>0?'k-crit':'k-ok' }}" style="padding:14px 16px">
+      <div class="kpi-top"><span class="kpi-label">Domain kritisch</span><span class="ti ti-world-off kpi-icon"></span></div>
+      <div class="kpi-value" style="font-size:24px;{{ $domCrit>0?'color:var(--crit)':'' }}">{{ $domCrit }}</div>
+      <div class="kpi-sub {{ $domCrit>0?'crit':'' }}">{{ $domCrit>0?'< 30 Tage':'Alles ok' }}</div>
     </div>
-    <div class="dom-chip ok">
-      <span class="num">{{ $summary['ok'] }}</span><span class="lbl">OK</span>
-    </div>
-    <div style="flex:1"></div>
-    <button class="chip {{ $filter === 'all'      ? 'on' : '' }}" wire:click="setFilter('all')">Alle</button>
-    <button class="chip {{ $filter === 'critical' ? 'on' : '' }}" wire:click="setFilter('critical')">Kritisch</button>
-    <button class="chip {{ $filter === 'warning'  ? 'on' : '' }}" wire:click="setFilter('warning')">Warnung</button>
-    <button class="chip {{ $filter === 'ok'       ? 'on' : '' }}" wire:click="setFilter('ok')">OK</button>
-    <div class="tb-search" style="margin-left:8px;width:220px">
-      <span class="ti ti-search" style="font-size:14px"></span>
-      <input type="text" placeholder="Domain suchen …" wire:model.live.debounce.250ms="search">
+    <div class="kpi-card {{ $domWarn>0?'k-warn':'k-ok' }}" style="padding:14px 16px">
+      <div class="kpi-top"><span class="kpi-label">Domain bald</span><span class="ti ti-world kpi-icon"></span></div>
+      <div class="kpi-value" style="font-size:24px;{{ $domWarn>0?'color:var(--warn)':'' }}">{{ $domWarn }}</div>
+      <div class="kpi-sub {{ $domWarn>0?'warn':'' }}">30–60 Tage</div>
     </div>
   </div>
 
-  {{-- Tabelle --}}
+  {{-- Filter Chips --}}
+  <div class="chip-row">
+    <span class="chip {{ !$filterSsl&&!$filterDom ? 'active' : '' }}" wire:click="$set('filterSsl','');$set('filterDom','')">Alle</span>
+    <span class="chip {{ $filterSsl==='crit'?'active-crit':'' }}" wire:click="$set('filterSsl', $filterSsl==='crit'?'':'crit')">
+      <span class="dot d-crit"></span>SSL kritisch
+    </span>
+    <span class="chip {{ $filterSsl==='warn'?'active-warn':'' }}" wire:click="$set('filterSsl', $filterSsl==='warn'?'':'warn')">
+      <span class="dot d-warn"></span>SSL bald
+    </span>
+    <span class="chip {{ $filterDom==='crit'?'active-crit':'' }}" wire:click="$set('filterDom', $filterDom==='crit'?'':'crit')">
+      <span class="dot d-crit"></span>Domain kritisch
+    </span>
+    <span class="chip {{ $filterDom==='warn'?'active-warn':'' }}" wire:click="$set('filterDom', $filterDom==='warn'?'':'warn')">
+      <span class="dot d-warn"></span>Domain bald
+    </span>
+  </div>
+
+  {{-- Table --}}
   <div class="card">
-    <div class="sec-h">
-      <span class="ti ti-world"></span>
-      <h3>Domains &amp; SSL-Zertifikate</h3>
-      <span class="cnt">{{ $rows->count() }}</span>
-    </div>
+    @if($sites->count())
     <table class="tbl">
       <thead>
         <tr>
-          <th style="width:32px"></th>
           <th>Website</th>
           <th>Kunde</th>
-          <th>Host</th>
-          <th>SSL-Status</th>
-          <th>SSL läuft ab</th>
-          <th>Domain läuft ab</th>
           <th>Domain</th>
-          <th></th>
+          <th>Domain-Ablauf</th>
+          <th>SSL-Ablauf</th>
+          <th>HTTPS</th>
+          <th>Hosting</th>
         </tr>
       </thead>
       <tbody>
-        @forelse ($rows as $row)
-        @php $s = $row['s']; @endphp
+        @foreach($sites as $site)
+        @php
+          $ssl = $site->sslDaysLeft();
+          $sslCls = $ssl !== null && $ssl < 14 ? 'crit' : ($ssl !== null && $ssl < 30 ? 'warn' : ($ssl !== null ? 'ok' : 'off'));
+          $dom = $site->domainDaysLeft();
+          $domCls = $dom !== null && $dom < 30 ? 'crit' : ($dom !== null && $dom < 60 ? 'warn' : ($dom !== null ? 'ok' : 'off'));
+        @endphp
         <tr>
+          <td style="font-weight:600">{{ $site->name }}</td>
+          <td style="color:var(--dim)">{{ $site->customer?->name ?? '–' }}</td>
+          <td style="font-size:12.5px;color:var(--dim)">{{ $site->domain ?? '–' }}</td>
           <td>
-            <div class="sev {{ $row['worst'] }}" style="width:26px;height:26px;border-radius:7px;font-size:12px">
-              @if($row['worst'] === 'crit') ⚠ @elseif($row['worst'] === 'warn') ⚡ @else ✓ @endif
-            </div>
+            @if($dom !== null)
+              <span class="days-{{ $domCls }}">{{ $dom }}d</span>
+              <span style="font-size:11.5px;color:var(--faint);margin-left:6px">{{ $site->domain_expires_at->format('d.m.Y') }}</span>
+            @else
+              <span class="days-off">–</span>
+            @endif
           </td>
           <td>
-            <div style="font-weight:600;font-size:13px">{{ $s->label }}</div>
-            @if($s->wp_version)<div style="font-size:11px;color:var(--faint)">WP {{ $s->wp_version }}</div>@endif
-          </td>
-          <td class="muted" style="font-size:12.5px">{{ $s->customer?->name ?? '—' }}</td>
-          <td>
-            <a href="{{ $s->url }}" target="_blank" rel="noopener" style="color:var(--dim);font-size:11.5px;font-family:monospace">
-              {{ parse_url($s->url, PHP_URL_HOST) ?? $s->url }}
-            </a>
+            @if($ssl !== null)
+              <span class="days-{{ $sslCls }}">{{ $ssl }}d</span>
+              <span style="font-size:11.5px;color:var(--faint);margin-left:6px">{{ $site->ssl_expires_at->format('d.m.Y') }}</span>
+            @else
+              <span class="days-off">–</span>
+            @endif
           </td>
           <td>
-            <span class="badge {{ $row['sslTone'] === 'crit' ? 'b-crit' : ($row['sslTone'] === 'warn' ? 'b-warn' : ($row['sslTone'] === 'ok' ? 'b-ok' : 'b-neutral')) }}">
-              @if($row['sslTone'] === 'crit') ✗ Kritisch
-              @elseif($row['sslTone'] === 'warn') ⚡ Bald fällig
-              @elseif($row['sslTone'] === 'ok') ✓ Gültig
-              @else – Unbekannt @endif
-            </span>
+            @if($site->latestSnapshot?->https)
+              <span class="badge badge-ok"><span class="ti ti-lock"></span>HTTPS</span>
+            @else
+              <span class="badge badge-warn">HTTP</span>
+            @endif
           </td>
-          <td>
-            @if($s->ssl_expires_at)
-              <span style="font-weight:700;color:{{ $row['sslTone'] === 'crit' ? 'var(--crit)' : ($row['sslTone'] === 'warn' ? 'var(--warn)' : 'var(--ok)') }}">
-                {{ $row['sslDays'] < 0 ? 'Abgelaufen' : $row['sslDays'].'d' }}
-              </span>
-              <div style="font-size:10.5px;color:var(--faint);margin-top:2px">{{ $s->ssl_expires_at->format('d.m.Y') }}</div>
-            @else <span class="faint">–</span> @endif
-          </td>
-          <td>
-            @if($s->domain_expires_at)
-              <span style="font-weight:700;color:{{ $row['domTone'] === 'crit' ? 'var(--crit)' : ($row['domTone'] === 'warn' ? 'var(--warn)' : 'var(--ok)') }}">
-                {{ $row['domDays'] < 0 ? 'Abgelaufen' : $row['domDays'].'d' }}
-              </span>
-              <div style="font-size:10.5px;color:var(--faint);margin-top:2px">{{ $s->domain_expires_at->format('d.m.Y') }}</div>
-            @else <span class="faint">–</span> @endif
-          </td>
-          <td>
-            <span class="badge {{ $s->domain_by_us ? 'b-neutral' : 'b-info' }}">
-              {{ $s->domain_by_us ? 'Bei uns' : 'Extern' }}
-            </span>
-          </td>
-          <td>
-            <a href="{{ route('cockpit.kunden') }}" class="btn ghost" style="padding:5px 9px;font-size:11.5px">Details</a>
-          </td>
+          <td style="font-size:12px;color:var(--dim)">{{ $site->hosted_by_us ? 'Bei uns' : 'Extern' }}</td>
         </tr>
-        @empty
-        <tr><td colspan="9" style="padding:48px;text-align:center;color:var(--faint)">Keine Domains gefunden.</td></tr>
-        @endforelse
+        @endforeach
       </tbody>
     </table>
-  </div>
-
-  {{-- Legende --}}
-  <div class="card" style="padding:16px 20px">
-    <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center">
-      <span style="font-size:11px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.06em">Legende</span>
-      <div style="font-size:12.5px;color:var(--dim)"><span class="badge b-crit" style="margin-right:8px">Kritisch</span>Abgelaufen oder &lt;14d (SSL) / &lt;30d (Domain)</div>
-      <div style="font-size:12.5px;color:var(--dim)"><span class="badge b-warn" style="margin-right:8px">Warnung</span>14–45d (SSL) / 30–90d (Domain)</div>
-      <div style="font-size:12.5px;color:var(--dim)"><span class="badge b-ok" style="margin-right:8px">OK</span>Mehr als 45d (SSL) / 90d (Domain)</div>
+    @else
+    <div class="empty">
+      <span class="ti ti-certificate-off"></span>
+      <h3>Keine Einträge</h3>
+      <p>Keine Sites mit diesen Filterkriterien.</p>
     </div>
+    @endif
   </div>
 
 </div>

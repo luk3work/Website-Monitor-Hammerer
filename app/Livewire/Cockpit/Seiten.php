@@ -5,26 +5,55 @@ namespace App\Livewire\Cockpit;
 use App\Models\Site;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.cockpit')]
 class Seiten extends Component
 {
-    public string $filter = 'all';
-    public string $search = '';
+    use WithPagination;
 
-    public function setFilter(string $f): void { $this->filter = $f; }
+    public string $search     = '';
+    public string $filterStatus = '';
+    public string $filterSsl    = '';
+    public string $sortBy       = 'severity';
+
+    public function updatedSearch(): void { $this->resetPage(); }
+    public function updatedFilterStatus(): void { $this->resetPage(); }
+    public function updatedFilterSsl(): void { $this->resetPage(); }
 
     public function render()
     {
-        $sites = Site::query()
-            ->with('customer')
-            ->where('is_archived', false)
-            ->when($this->search, fn ($q) => $q->where('label', 'like', '%'.$this->search.'%')->orWhere('url', 'like', '%'.$this->search.'%'))
-            ->when($this->filter === 'problems', fn ($q) => $q->whereIn('status', ['offline', 'maintenance']))
-            ->when($this->filter === 'offline',  fn ($q) => $q->where('status', 'offline'))
-            ->orderByRaw("FIELD(status,'offline','maintenance','unknown','online')")
-            ->get();
+        $query = Site::query()
+            ->with(['customer', 'packages'])
+            ->where('is_archived', false);
 
-        return view('livewire.cockpit.seiten', compact('sites'));
+        if ($this->search) {
+            $query->where(fn ($q) =>
+                $q->where('name', 'like', "%{$this->search}%")
+                  ->orWhereHas('customer', fn ($q2) => $q2->where('name', 'like', "%{$this->search}%"))
+            );
+        }
+
+        if ($this->filterStatus) {
+            $query->where('status', $this->filterStatus);
+        }
+
+        if ($this->filterSsl === 'crit') {
+            $query->whereNotNull('ssl_expires_at')->whereDate('ssl_expires_at', '<=', now()->addDays(14));
+        } elseif ($this->filterSsl === 'warn') {
+            $query->whereNotNull('ssl_expires_at')
+                ->whereDate('ssl_expires_at', '>', now()->addDays(14))
+                ->whereDate('ssl_expires_at', '<=', now()->addDays(30));
+        }
+
+        $sites = $query->orderByRaw("FIELD(status,'offline','maintenance','unknown','online')")
+            ->orderBy('name')
+            ->paginate(25);
+
+        $totalCount   = Site::where('is_archived', false)->count();
+        $offlineCount = Site::where('is_archived', false)->where('status', 'offline')->count();
+        $sslCritCount = Site::where('is_archived', false)->whereNotNull('ssl_expires_at')->whereDate('ssl_expires_at', '<=', now()->addDays(14))->count();
+
+        return view('livewire.cockpit.seiten', compact('sites', 'totalCount', 'offlineCount', 'sslCritCount'));
     }
 }
