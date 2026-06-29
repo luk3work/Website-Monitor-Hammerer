@@ -111,7 +111,10 @@
           <div class="user-name">{{ $u->name ?? 'Benutzer' }}</div>
           <div class="user-role">{{ $u->role ?? 'admin' }}</div>
         </div>
-        <a href="{{ route('filament.admin.auth.logout') }}" class="ti ti-logout" style="font-size:15px;color:var(--faint);margin-left:auto" title="Abmelden" wire:navigate></a>
+        <form method="POST" action="{{ route('filament.admin.auth.logout') }}" style="margin-left:auto;line-height:0">
+          @csrf
+          <button type="submit" class="ti ti-logout" style="font-size:15px;color:var(--faint);background:none;border:none;cursor:pointer;padding:0" title="Abmelden" aria-label="Abmelden"></button>
+        </form>
       </div>
     </div>
 

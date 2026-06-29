@@ -8,12 +8,10 @@ use Tests\TestCase;
 class ExampleTest extends TestCase
 {
     /**
-     * A basic test example.
+     * Die Wurzel leitet ins Cockpit (Gäste von dort weiter zur Anmeldung).
      */
-    public function test_the_application_returns_a_successful_response(): void
+    public function test_root_redirects_into_cockpit(): void
     {
-        $response = $this->get('/');
-
-        $response->assertStatus(200);
+        $this->get('/')->assertRedirect(route('cockpit.dashboard'));
     }
 }

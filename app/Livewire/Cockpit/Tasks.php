@@ -7,10 +7,13 @@ use App\Models\Task;
 use App\Models\User;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.cockpit')]
 class Tasks extends Component
 {
+    use WithPagination;
+
     public string $search       = '';
     public string $filterStatus = '';
     public string $filterSev    = '';
@@ -88,8 +91,9 @@ class Tasks extends Component
         if ($this->filterSev)  { $query->where('severity', $this->filterSev); }
         if ($this->filterUser) { $query->where('assigned_to', $this->filterUser); }
 
-        $tasks = $query->orderByRaw("FIELD(severity,'critical','warning','info')")
-            ->orderByRaw("FIELD(status,'open','in_progress','blocked','done','dismissed')")
+        $tasks = $query
+            ->orderByRaw("CASE severity WHEN 'critical' THEN 1 WHEN 'warning' THEN 2 WHEN 'info' THEN 3 ELSE 4 END")
+            ->orderByRaw("CASE status WHEN 'open' THEN 1 WHEN 'in_progress' THEN 2 WHEN 'blocked' THEN 3 WHEN 'done' THEN 4 ELSE 5 END")
             ->orderBy('due_date')
             ->paginate(30);
 

@@ -47,7 +47,8 @@ class Seiten extends Component
                 ->whereDate('ssl_expires_at', '<=', now()->addDays(30));
         }
 
-        $sites = $query->orderByRaw("FIELD(status,'offline','maintenance','unknown','online')")
+        $sites = $query
+            ->orderByRaw("CASE status WHEN 'offline' THEN 1 WHEN 'maintenance' THEN 2 WHEN 'unknown' THEN 3 WHEN 'online' THEN 4 ELSE 5 END")
             ->orderBy('label')
             ->paginate(25);
 
