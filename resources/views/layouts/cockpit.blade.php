@@ -19,10 +19,10 @@
   <aside class="rail">
 
     {{-- Brand --}}
-    <div class="brand">
-      <div class="brand-icon"><span class="ti ti-pulse"></span></div>
+    <a href="{{ route('cockpit.dashboard') }}" class="brand" wire:navigate>
+      <img class="brand-logo" src="{{ asset('img/brand-icon.svg') }}" alt="Ops Cockpit">
       <div class="brand-name">Ops<span>Cockpit</span></div>
-    </div>
+    </a>
 
     {{-- Navigation --}}
     <nav class="nav" aria-label="Hauptnavigation">

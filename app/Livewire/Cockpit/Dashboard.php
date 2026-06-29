@@ -36,10 +36,32 @@ class Dashboard extends Component
             ->sortBy(fn ($s) => min($s->sslDaysLeft() ?? 9999, $s->domainDaysLeft() ?? 9999))
             ->take(8);
 
+        // ---- Daten für die Graphen ----
+        $statusDist = [
+            'online'      => $sites->filter(fn ($s) => $s->status?->value === 'online')->count(),
+            'maintenance' => $sites->filter(fn ($s) => $s->status?->value === 'maintenance')->count(),
+            'offline'     => $sites->filter(fn ($s) => $s->status?->value === 'offline')->count(),
+            'unknown'     => $sites->filter(fn ($s) => $s->status?->value === 'unknown')->count(),
+        ];
+
+        $openBase = fn () => Task::query()->whereIn('status', ['open', 'in_progress', 'blocked']);
+        $sevDist = [
+            'critical' => $critTasks,
+            'warning'  => $openBase()->where('severity', 'warning')->count(),
+            'info'     => $openBase()->where('severity', 'info')->count(),
+        ];
+
+        $topUpdates = $sites
+            ->filter(fn ($s) => (int) ($s->pending_updates ?? 0) > 0)
+            ->sortByDesc('pending_updates')
+            ->take(6)
+            ->map(fn ($s) => ['name' => $s->name, 'count' => (int) $s->pending_updates])
+            ->values();
+
         return view('livewire.cockpit.dashboard', compact(
             'totalSites', 'totalCustomers', 'offlineSites',
             'sslCrit', 'sslWarn', 'domCrit', 'openTasks', 'critTasks', 'pendingUpdates',
-            'feed', 'expiries'
+            'feed', 'expiries', 'statusDist', 'sevDist', 'topUpdates'
         ));
     }
 

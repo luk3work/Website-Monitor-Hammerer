@@ -55,6 +55,16 @@ class CockpitSmokeTest extends TestCase
         }
     }
 
+    /** Dashboard rendert die neuen Graphen ohne Fehler. */
+    public function test_dashboard_renders_charts(): void
+    {
+        $this->get(route('cockpit.dashboard'))
+            ->assertOk()
+            ->assertSee('Status-Verteilung')
+            ->assertSee('Aufgaben nach Schweregrad')
+            ->assertSee('Meiste Updates');
+    }
+
     public function test_kunden_interactions(): void
     {
         $customer = \App\Models\Customer::query()->whereHas('sites')->firstOrFail();
