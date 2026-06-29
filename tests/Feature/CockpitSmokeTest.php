@@ -107,7 +107,18 @@ class CockpitSmokeTest extends TestCase
 
     public function test_einstellungen_save(): void
     {
+        // Produktionsfall: Werte liegen im {"v": …}-Format vor (alte Filament-Settings).
+        // Direkt in die JSON-Spalte -> würde sonst beim Zuweisen an typisierte
+        // Properties (string $aiProvider) einen 500 (TypeError) auslösen.
+        \App\Models\Setting::query()->insert([
+            ['key' => 'ai_provider', 'value' => json_encode(['v' => 'anthropic']), 'created_at' => now(), 'updated_at' => now()],
+            ['key' => 'ssl_warn_days', 'value' => json_encode(['v' => 14]), 'created_at' => now(), 'updated_at' => now()],
+        ]);
+
         Livewire::test(\App\Livewire\Cockpit\Einstellungen::class)
+            ->assertOk()
+            ->assertSet('aiProvider', 'anthropic')
+            ->assertSet('sslWarnDays', 14)
             ->set('sslWarnDays', 21)
             ->set('aiProvider', 'none')
             ->call('save')->assertOk()->assertHasNoErrors();

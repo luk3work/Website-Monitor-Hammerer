@@ -17,24 +17,36 @@ class Einstellungen extends Component
 
     public function mount(): void
     {
-        $this->sslWarnDays    = (int)(Setting::query()->where('key', 'ssl_warn_days')->value('value')    ?? 30);
-        $this->domainWarnDays = (int)(Setting::query()->where('key', 'domain_warn_days')->value('value') ?? 60);
-        $this->heartbeatHours = (int)(Setting::query()->where('key', 'heartbeat_hours')->value('value')  ?? 26);
-        $this->aiProvider     = Setting::query()->where('key', 'ai_provider')->value('value')            ?? 'none';
-        $this->emailAlerts    = (bool)(Setting::query()->where('key', 'email_alerts')->value('value')    ?? false);
+        // Setting::value ist als array gecastet. Werte können als {"v": …}
+        // (Setting::set) oder als reiner Skalar abgelegt sein – beides robust lesen.
+        $this->sslWarnDays    = (int) $this->readSetting('ssl_warn_days', 30);
+        $this->domainWarnDays = (int) $this->readSetting('domain_warn_days', 60);
+        $this->heartbeatHours = (int) $this->readSetting('heartbeat_hours', 26);
+        $this->aiProvider     = (string) ($this->readSetting('ai_provider', 'none') ?: 'none');
+        $this->emailAlerts    = (bool) $this->readSetting('email_alerts', false);
+    }
+
+    /** Liest einen Skalar aus der settings-Tabelle, egal ob {"v":…} oder roh. */
+    private function readSetting(string $key, mixed $default): mixed
+    {
+        $raw = Setting::query()->where('key', $key)->value('value');
+
+        if (is_array($raw)) {
+            return $raw['v'] ?? $default;
+        }
+
+        return $raw ?? $default;
     }
 
     public function save(): void
     {
-        foreach ([
-            'ssl_warn_days'    => $this->sslWarnDays,
-            'domain_warn_days' => $this->domainWarnDays,
-            'heartbeat_hours'  => $this->heartbeatHours,
-            'ai_provider'      => $this->aiProvider,
-            'email_alerts'     => (int)$this->emailAlerts,
-        ] as $key => $value) {
-            Setting::query()->updateOrCreate(['key' => $key], ['value' => (string)$value]);
-        }
+        // Einheitlich im {"v": …}-Format ablegen (Setting::set / Setting::get).
+        Setting::set('ssl_warn_days', $this->sslWarnDays);
+        Setting::set('domain_warn_days', $this->domainWarnDays);
+        Setting::set('heartbeat_hours', $this->heartbeatHours);
+        Setting::set('ai_provider', $this->aiProvider);
+        Setting::set('email_alerts', $this->emailAlerts);
+
         session()->flash('saved', true);
     }
 
