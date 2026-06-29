@@ -8,7 +8,6 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Auth\Login;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -46,9 +45,12 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->brandName('Ops Cockpit')
             ->font('Inter')
-            // Split-Screen-Login im shadcn-Stil – nur auf der Login-Seite.
-            ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => $this->loginHead(), scopes: Login::class)
-            ->renderHook(PanelsRenderHook::BODY_START, fn (): string => $this->loginBrand(), scopes: Login::class)
+            // Split-Screen-Login im shadcn-Stil. Bewusst OHNE scopes (gescopte
+            // Render-Hooks greifen mit gecachten Routes/Config in Produktion nicht
+            // zuverlässig). Wirkung ist über die CSS-Selektoren (.fi-simple-* /
+            // :has(.fi-simple-layout)) sauber auf die Login-Seite begrenzt.
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => $this->loginHead())
+            ->renderHook(PanelsRenderHook::BODY_START, fn (): string => $this->loginBrand())
             ->pages([
                 Dashboard::class,
             ])
@@ -102,13 +104,15 @@ class AdminPanelProvider extends PanelProvider
   --tw-ring-color:transparent!important;box-shadow:0 24px 64px rgba(0,0,0,.55)!important;
   border-radius:16px!important;
 }
-.oc-login-brand{position:fixed;top:26px;left:32px;z-index:10;display:flex;align-items:center;gap:11px;}
+.oc-login-brand{display:none;position:fixed;top:26px;left:32px;z-index:10;align-items:center;gap:11px;}
 .oc-login-brand img{width:38px;height:38px;display:block;filter:drop-shadow(0 2px 10px rgba(0,0,0,.6));}
 .oc-login-brand b{color:#fff;font:700 17px/1 Inter,system-ui,sans-serif;letter-spacing:-.02em;}
-.oc-login-tag{position:fixed;left:32px;bottom:30px;z-index:10;max-width:40%;
+.oc-login-tag{display:none;position:fixed;left:32px;bottom:30px;z-index:10;max-width:40%;
   color:rgba(255,255,255,.92);font:600 17px/1.45 Inter,system-ui,sans-serif;letter-spacing:-.01em;
   text-shadow:0 2px 14px rgba(0,0,0,.7);}
 .oc-login-tag small{display:block;margin-top:7px;font-weight:400;font-size:13.5px;color:rgba(255,255,255,.62);}
+body:has(.fi-simple-layout) .oc-login-brand{display:flex;}
+body:has(.fi-simple-layout) .oc-login-tag{display:block;}
 @media (max-width:900px){
   .fi-simple-layout{flex-direction:column!important;justify-content:center!important;}
   .fi-simple-main-ctn{width:100%!important;}
