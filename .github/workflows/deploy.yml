@@ -117,3 +117,20 @@ jobs:
             -o mittwald_ssh_public_key_file=.mw-deploy/id_rsa.pub \
             -o mittwald_ssh_private_key_file=.mw-deploy/id_rsa \
             -o run_demo_seed=${{ inputs.run_demo_seed || 'false' }}
+
+      # OPcache im FPM-Worker leeren: Symlink-Deploys halten sonst alten Bytecode
+      # (Mittwald ignoriert .user.ini, cachetool-Flush der Recipe greift nicht).
+      - name: OPcache zurücksetzen
+        if: steps.cfg.outputs.ready == 'true'
+        env:
+          APP_KEY: ${{ secrets.APP_KEY }}
+        run: |
+          TOKEN=$(php -r '$k=trim((string) getenv("APP_KEY"), " \t\"\x27"); echo substr(hash("sha256", $k), 0, 32);')
+          ok=0
+          for n in 1 2 3 4 5; do
+            RESP=$(curl -fsS --max-time 30 "https://webmonitor.hammerer.at/_opcache_reset.php?token=$TOKEN" 2>/dev/null || true)
+            echo "OPcache-Reset Versuch $n: ${RESP:-<keine Antwort>}"
+            if [ "$RESP" = "reset-ok" ]; then ok=1; break; fi
+            sleep 4
+          done
+          [ "$ok" = "1" ] || echo "::warning::OPcache-Reset nicht bestätigt – ggf. APP_KEY-Secret prüfen."
