@@ -11,7 +11,6 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -45,12 +44,6 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->brandName('Ops Cockpit')
             ->font('Inter')
-            // Split-Screen-Login im shadcn-Stil. Bewusst OHNE scopes (gescopte
-            // Render-Hooks greifen mit gecachten Routes/Config in Produktion nicht
-            // zuverlässig). Wirkung ist über die CSS-Selektoren (.fi-simple-* /
-            // :has(.fi-simple-layout)) sauber auf die Login-Seite begrenzt.
-            ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => $this->loginHead())
-            ->renderHook(PanelsRenderHook::BODY_START, fn (): string => $this->loginBrand())
             ->pages([
                 Dashboard::class,
             ])
@@ -75,7 +68,7 @@ class AdminPanelProvider extends PanelProvider
      * Augen-Bild als Vollflächen-Hintergrund – links voll sichtbar, rechts
      * ein geblurrtes, abgedunkeltes Panel, das die Login-Karte trägt.
      */
-    private function loginHead(): string
+    public static function loginHead(): string
     {
         return <<<'HTML'
 <style>
@@ -124,7 +117,7 @@ HTML;
     }
 
     /** Marken-Mark (SVG) oben links + Tagline unten links – über dem Augen-Bild. */
-    private function loginBrand(): string
+    public static function loginBrand(): string
     {
         return <<<'HTML'
 <div class="oc-login-brand"><img src="/img/brand-icon.svg" alt="Ops Cockpit"><b>Ops Cockpit</b></div>
