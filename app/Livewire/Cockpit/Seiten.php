@@ -29,7 +29,8 @@ class Seiten extends Component
 
         if ($this->search) {
             $query->where(fn ($q) =>
-                $q->where('name', 'like', "%{$this->search}%")
+                $q->where('label', 'like', "%{$this->search}%")
+                  ->orWhere('url', 'like', "%{$this->search}%")
                   ->orWhereHas('customer', fn ($q2) => $q2->where('name', 'like', "%{$this->search}%"))
             );
         }
@@ -47,7 +48,7 @@ class Seiten extends Component
         }
 
         $sites = $query->orderByRaw("FIELD(status,'offline','maintenance','unknown','online')")
-            ->orderBy('name')
+            ->orderBy('label')
             ->paginate(25);
 
         $totalCount   = Site::where('is_archived', false)->count();

@@ -96,7 +96,7 @@ class Tasks extends Component
         $openCount  = Task::whereIn('status', ['open','in_progress','blocked'])->count();
         $critCount  = Task::whereIn('status', ['open','in_progress','blocked'])->where('severity','critical')->count();
         $doneToday  = Task::where('status','done')->whereDate('resolved_at', today())->count();
-        $sites      = Site::where('is_archived', false)->with('customer')->orderBy('name')->get();
+        $sites      = Site::where('is_archived', false)->with('customer')->orderBy('label')->get();
         $users      = User::orderBy('name')->get();
 
         return view('livewire.cockpit.tasks', compact('tasks', 'openCount', 'critCount', 'doneToday', 'sites', 'users'));

@@ -21,8 +21,8 @@ class Domains extends Component
 
         if ($this->search) {
             $query->where(fn ($q) =>
-                $q->where('name', 'like', "%{$this->search}%")
-                  ->orWhere('domain', 'like', "%{$this->search}%")
+                $q->where('label', 'like', "%{$this->search}%")
+                  ->orWhere('url', 'like', "%{$this->search}%")
                   ->orWhereHas('customer', fn ($q2) => $q2->where('name', 'like', "%{$this->search}%"))
             );
         }
@@ -43,7 +43,7 @@ class Domains extends Component
                 ->whereDate('domain_expires_at', '<=', now()->addDays(60));
         }
 
-        $sites = $query->orderBy('name')->get();
+        $sites = $query->orderBy('label')->get();
 
         // Summary counts
         $sslCrit  = Site::where('is_archived', false)->whereNotNull('ssl_expires_at')->whereDate('ssl_expires_at', '<=', now()->addDays(14))->count();

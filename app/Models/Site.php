@@ -79,6 +79,31 @@ class Site extends Model
 
     /* -------- Helfer -------- */
 
+    /**
+     * Anzeigename. Die DB-Spalte heißt historisch `label`; das Cockpit
+     * (Views + Sortierung) nutzt durchgehend `name` als Alias.
+     */
+    public function getNameAttribute(): ?string
+    {
+        return $this->attributes['label'] ?? null;
+    }
+
+    /**
+     * Reiner Host der Primär-URL (z. B. „kunde.at"), ohne Schema und „www.".
+     * Eine eigene `domain`-Spalte gibt es nicht – sie wird aus `url` abgeleitet.
+     */
+    public function getDomainAttribute(): ?string
+    {
+        $url = $this->attributes['url'] ?? null;
+        if (! $url) {
+            return null;
+        }
+
+        $host = parse_url($url, PHP_URL_HOST) ?: $url;
+
+        return preg_replace('/^www\./i', '', $host);
+    }
+
     public function isExternal(): bool
     {
         return $this->cms_type === 'extern';
