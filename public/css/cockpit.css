@@ -452,3 +452,36 @@ label.lbl { font-size: 12px; font-weight: 600; color: var(--dim); display: block
 .gbar-fill.warn { background: var(--warn); }
 .gbar-fill.crit { background: var(--crit); }
 .gbar-fill.info { background: var(--info); }
+
+/* ---------- Clickable rows ---------- */
+.row-link { cursor: pointer; }
+.tbl tbody tr.row-link:hover { background: rgba(185,165,100,0.06); }
+.lnk { color: var(--acc-lt); display: inline-flex; align-items: center; gap: 4px; font-weight: 600; }
+.lnk:hover { text-decoration: underline; }
+.row-actions { display: inline-flex; align-items: center; gap: 6px; }
+.icon-link { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 8px; color: var(--dim); border: 1px solid var(--line); background: var(--panel); transition: all 120ms; }
+.icon-link:hover { color: var(--acc-lt); border-color: var(--acc-bd); background: var(--acc-bg); }
+.icon-link .ti { font-size: 15px; }
+
+/* ---------- Report cards (Berichte) ---------- */
+.report-card { background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0) 80px), var(--panel); border: 1px solid var(--line); border-radius: var(--r5); overflow: hidden; box-shadow: var(--sh-sm); transition: border-color 180ms, transform 180ms, box-shadow 180ms; text-decoration: none; color: inherit; display: flex; flex-direction: column; }
+.report-card:hover { border-color: var(--line2); transform: translateY(-2px); box-shadow: var(--sh-md); }
+.report-head { display: flex; align-items: center; gap: 12px; padding: 16px 18px; border-bottom: 1px solid var(--line); }
+.report-body { padding: 14px 18px 18px; display: flex; flex-direction: column; gap: 12px; }
+.report-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.report-stat { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border-radius: var(--r4); background: var(--panel2); border: 1px solid var(--line); }
+.report-stat-label { font-size: 12px; color: var(--dim); display: flex; align-items: center; gap: 7px; }
+.report-stat-label .ti { font-size: 15px; }
+.report-stat-val { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+
+/* ---------- Package tiles / chips with icon ---------- */
+.pkg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.pkg-tile { display: flex; align-items: center; gap: 11px; padding: 12px 14px; border-radius: var(--r4); background: var(--panel2); border: 1px solid var(--line); }
+.pkg-tile.declined { opacity: 0.55; }
+.pkg-tile-ic { width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; flex-shrink: 0; background: var(--acc-bg); color: var(--acc-lt); border: 1px solid var(--acc-bd); }
+.pkg-tile-ic .ti { font-size: 20px; }
+.pkg-tile.declined .pkg-tile-ic { background: rgba(255,255,255,0.04); color: var(--faint); border-color: var(--line); }
+.pkg-tile-body { min-width: 0; flex: 1; }
+.pkg-tile-name { font-size: 13px; font-weight: 600; color: var(--tx); }
+.pkg-tile-sub { font-size: 11.5px; color: var(--faint); margin-top: 1px; }
+.pkg-chip .ti { font-size: 12px; }

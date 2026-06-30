@@ -213,7 +213,7 @@
         $days = min($ssl ?? 9999, $dom ?? 9999);
         $cls = $days < 14 ? 'crit' : ($days < 30 ? 'warn' : 'ok');
       @endphp
-      <div class="prow" style="padding:10px 16px">
+      <a class="prow" href="{{ route('cockpit.kunden', ['customer' => $s->customer_id, 'site' => $s->id, 'tab' => 'domain']) }}" wire:navigate style="padding:10px 16px">
         <span class="dot d-{{ $cls }}" style="margin-top:5px"></span>
         <div class="prow-body">
           <div style="font-size:13px;font-weight:600">{{ $s->name }}</div>
@@ -222,7 +222,7 @@
             @if($dom !== null && $dom < 90) Domain: <span class="days-{{ $cls }}">{{ $dom }}d</span> @endif
           </div>
         </div>
-      </div>
+      </a>
       @empty
       <div class="empty" style="padding:32px 16px">
         <span class="ti ti-calendar-check" style="color:var(--ok)"></span>

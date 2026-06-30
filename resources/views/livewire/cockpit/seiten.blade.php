@@ -67,13 +67,15 @@
             <span class="dot {{ $stDot === 'maint' ? 'd-maint' : 'd-'.$stDot }}" title="{{ $site->status?->label() }}"></span>
           </td>
           <td>
-            <div style="font-weight:600">{{ $site->name }}</div>
+            <a class="lnk" href="{{ route('cockpit.kunden', ['customer' => $site->customer_id, 'site' => $site->id]) }}" wire:navigate style="font-weight:600">{{ $site->name }}</a>
             @if($site->domain)
-            <div style="font-size:11.5px;color:var(--faint)">{{ $site->domain }}</div>
+            <div style="font-size:11.5px;color:var(--faint)">
+              <a href="{{ $site->url }}" target="_blank" rel="noopener" style="color:var(--faint)">{{ $site->domain }} <span class="ti ti-external-link" style="font-size:11px"></span></a>
+            </div>
             @endif
           </td>
           <td>
-            <a href="{{ route('cockpit.kunden') }}" style="color:var(--dim)">{{ $site->customer?->name ?? '–' }}</a>
+            <a href="{{ route('cockpit.kunden', ['customer' => $site->customer_id]) }}" wire:navigate style="color:var(--dim)">{{ $site->customer?->name ?? '–' }}</a>
           </td>
           <td><span style="color:var(--dim);font-size:12.5px">{{ $site->cms_type ?? '–' }}</span></td>
           <td>
@@ -92,14 +94,16 @@
           </td>
           <td>
             @if(($site->pending_updates ?? 0) > 0)
-              <span class="badge badge-{{ $site->pending_updates >= 5 ? 'warn' : 'info' }}">{{ $site->pending_updates }}</span>
+              <a href="{{ route('cockpit.kunden', ['customer' => $site->customer_id, 'site' => $site->id, 'tab' => 'plugins']) }}" wire:navigate title="Aktualisierungen ansehen">
+                <span class="badge badge-{{ $site->pending_updates >= 5 ? 'warn' : 'info' }}">{{ $site->pending_updates }}</span>
+              </a>
             @else
               <span style="color:var(--faint)">–</span>
             @endif
           </td>
           <td>
             @foreach($bookedPkgs->take(2) as $pkg)
-              <span class="pkg-chip booked" style="font-size:10.5px">{{ Str::limit($pkg->name,18) }}</span>
+              <span class="pkg-chip booked" style="font-size:10.5px"><span class="ti {{ $pkg->iconClass() }}"></span>{{ Str::limit($pkg->name,16) }}</span>
             @endforeach
             @if($bookedPkgs->count() > 2)
               <span class="pkg-chip" style="font-size:10.5px">+{{ $bookedPkgs->count()-2 }}</span>

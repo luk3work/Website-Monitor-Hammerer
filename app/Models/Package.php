@@ -36,4 +36,24 @@ class Package extends Model
 
         return $parts ? implode(' + ', $parts) : '–';
     }
+
+    /** Passendes Tabler-Icon abgeleitet aus key/group/category/name. */
+    public function iconClass(): string
+    {
+        $k = strtolower(($this->key ?? '') . ' ' . ($this->group ?? '') . ' ' . ($this->category ?? '') . ' ' . ($this->name ?? ''));
+
+        return match (true) {
+            str_contains($k, 'domain')                                   => 'ti-world',
+            str_contains($k, 'mail')                                     => 'ti-mail',
+            str_contains($k, 'hosting'), str_contains($k, 'webspace')    => 'ti-server',
+            str_contains($k, 'update')                                   => 'ti-refresh',
+            str_contains($k, 'seo')                                      => 'ti-trending-up',
+            str_contains($k, 'performance')                              => 'ti-bolt',
+            str_contains($k, 'report')                                   => 'ti-chart-bar',
+            str_contains($k, 'datenschutz'), str_contains($k, 'cookie')  => 'ti-shield-lock',
+            str_contains($k, 'security'), str_contains($k, 'sicherheit') => 'ti-shield-check',
+            str_contains($k, 'a11y'), str_contains($k, 'barriere')       => 'ti-accessible',
+            default                                                      => 'ti-package',
+        };
+    }
 }

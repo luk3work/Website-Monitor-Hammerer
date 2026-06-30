@@ -81,9 +81,13 @@
           $domCls = $dom !== null && $dom < 30 ? 'crit' : ($dom !== null && $dom < 60 ? 'warn' : ($dom !== null ? 'ok' : 'off'));
         @endphp
         <tr>
-          <td style="font-weight:600">{{ $site->name }}</td>
-          <td style="color:var(--dim)">{{ $site->customer?->name ?? '–' }}</td>
-          <td style="font-size:12.5px;color:var(--dim)">{{ $site->domain ?? '–' }}</td>
+          <td><a class="lnk" href="{{ route('cockpit.kunden', ['customer' => $site->customer_id, 'site' => $site->id, 'tab' => 'domain']) }}" wire:navigate style="font-weight:600">{{ $site->name }}</a></td>
+          <td><a href="{{ route('cockpit.kunden', ['customer' => $site->customer_id]) }}" wire:navigate style="color:var(--dim)">{{ $site->customer?->name ?? '–' }}</a></td>
+          <td style="font-size:12.5px;color:var(--dim)">
+            @if($site->domain)
+              <a href="{{ $site->url }}" target="_blank" rel="noopener" style="color:var(--dim)">{{ $site->domain }} <span class="ti ti-external-link" style="font-size:11px"></span></a>
+            @else – @endif
+          </td>
           <td>
             @if($dom !== null)
               <span class="days-{{ $domCls }}">{{ $dom }}d</span>

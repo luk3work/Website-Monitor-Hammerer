@@ -16,6 +16,15 @@ class Kunden extends Component
     public string $tab        = 'overview';
     public string $search     = '';
 
+    /** Deep-Link-Einstieg: /cockpit/kunden?customer=…&site=…&tab=… */
+    public function mount(): void
+    {
+        $this->customerId = ((int) request()->query('customer')) ?: null;
+        $this->siteId     = ((int) request()->query('site')) ?: null;
+        $tab = (string) request()->query('tab', 'overview');
+        $this->tab = in_array($tab, ['overview', 'plugins', 'domain', 'packages', 'tasks'], true) ? $tab : 'overview';
+    }
+
     public function selectCustomer(int $id): void
     {
         $this->customerId = $id;

@@ -191,17 +191,40 @@
         @if($site)
         <div class="card">
           <div class="sec-h"><span class="ti ti-package"></span><h3>Gebuchte Pakete</h3><span class="cnt">{{ $site->packages->where('pivot.state','booked')->count() }}</span></div>
-          @forelse($site->packages->where('pivot.state','booked') as $pkg)
-          <div class="prow">
-            <span class="ti ti-check text-acc prow-icon"></span>
-            <div class="prow-body">
-              <div class="prow-title">{{ $pkg->name }}</div>
-              <div class="prow-meta"><span>{{ $pkg->group }}</span><span class="sep">·</span><span>{{ $pkg->priceLabel() }}</span></div>
+          <div style="padding:16px">
+            @php $booked = $site->packages->where('pivot.state','booked'); @endphp
+            @if($booked->count())
+            <div class="pkg-grid">
+              @foreach($booked as $pkg)
+              <div class="pkg-tile">
+                <div class="pkg-tile-ic"><span class="ti {{ $pkg->iconClass() }}"></span></div>
+                <div class="pkg-tile-body">
+                  <div class="pkg-tile-name truncate">{{ $pkg->name }}</div>
+                  <div class="pkg-tile-sub">{{ $pkg->priceLabel() }}</div>
+                </div>
+              </div>
+              @endforeach
             </div>
+            @else
+            <div class="empty" style="padding:32px"><span class="ti ti-package-off"></span><p>Keine Pakete gebucht.</p></div>
+            @endif
+
+            @php $declined = $site->packages->where('pivot.state','declined'); @endphp
+            @if($declined->count())
+            <div class="kv-label" style="margin:18px 0 8px">Abgewählt</div>
+            <div class="pkg-grid">
+              @foreach($declined as $pkg)
+              <div class="pkg-tile declined">
+                <div class="pkg-tile-ic"><span class="ti {{ $pkg->iconClass() }}"></span></div>
+                <div class="pkg-tile-body">
+                  <div class="pkg-tile-name truncate">{{ $pkg->name }}</div>
+                  <div class="pkg-tile-sub">nicht gebucht</div>
+                </div>
+              </div>
+              @endforeach
+            </div>
+            @endif
           </div>
-          @empty
-          <div class="empty"><span class="ti ti-package-off"></span><p>Keine Pakete gebucht.</p></div>
-          @endforelse
         </div>
         @endif
 
