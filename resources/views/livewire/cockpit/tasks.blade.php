@@ -2,7 +2,7 @@
 {{-- Topbar --}}
 <div class="topbar">
   <div class="topbar-left">
-    <span class="crumb">Ops Cockpit</span>
+    <span class="crumb">WebOps</span>
     <span class="crumb-sep">/</span>
     <h1>Aufgaben</h1>
   </div>
@@ -25,15 +25,15 @@
   {{-- KPI Row --}}
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
     <div class="kpi-card k-warn" style="padding:14px 18px">
-      <div class="kpi-top"><span class="kpi-label">Offen</span><span class="ti ti-circle-dot kpi-icon"></span></div>
+      <div class="kpi-top"><span class="kpi-label">Offen</span><span class="kpi-ic acc"><span class="ti ti-circle-dot"></span></span></div>
       <div class="kpi-value" style="font-size:24px">{{ $openCount }}</div>
     </div>
     <div class="kpi-card k-crit" style="padding:14px 18px">
-      <div class="kpi-top"><span class="kpi-label">Kritisch</span><span class="ti ti-alert-circle kpi-icon"></span></div>
+      <div class="kpi-top"><span class="kpi-label">Kritisch</span><span class="kpi-ic acc"><span class="ti ti-alert-circle"></span></span></div>
       <div class="kpi-value" style="font-size:24px;{{ $critCount>0?'color:var(--crit)':'' }}">{{ $critCount }}</div>
     </div>
     <div class="kpi-card k-ok" style="padding:14px 18px">
-      <div class="kpi-top"><span class="kpi-label">Heute erledigt</span><span class="ti ti-circle-check kpi-icon"></span></div>
+      <div class="kpi-top"><span class="kpi-label">Heute erledigt</span><span class="kpi-ic acc"><span class="ti ti-circle-check"></span></span></div>
       <div class="kpi-value" style="font-size:24px;color:var(--ok)">{{ $doneToday }}</div>
     </div>
   </div>

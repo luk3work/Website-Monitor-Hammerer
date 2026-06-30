@@ -34,15 +34,15 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->defaultThemeMode(ThemeMode::Dark)
-            // Sky-Blue als Akzent, passend zum neuen Cockpit-Look.
+            // Firmen-Gold (#B9A564) als Akzent, passend zum Cockpit-Look.
             ->colors([
-                'primary' => Color::Sky,
+                'primary' => Color::hex('#B9A564'),
                 'gray'    => Color::Zinc,
                 'success' => Color::Emerald,
                 'warning' => Color::Amber,
                 'danger'  => Color::Rose,
             ])
-            ->brandName('Ops Cockpit')
+            ->brandName('WebOps')
             ->font('Inter')
             ->pages([
                 Dashboard::class,
@@ -97,9 +97,10 @@ class AdminPanelProvider extends PanelProvider
   --tw-ring-color:transparent!important;box-shadow:0 24px 64px rgba(0,0,0,.55)!important;
   border-radius:16px!important;
 }
-.oc-login-brand{display:none;position:fixed;top:26px;left:32px;z-index:10;align-items:center;gap:11px;}
-.oc-login-brand img{width:38px;height:38px;display:block;filter:drop-shadow(0 2px 10px rgba(0,0,0,.6));}
-.oc-login-brand b{color:#fff;font:700 17px/1 Inter,system-ui,sans-serif;letter-spacing:-.02em;}
+.oc-login-brand{display:none;position:fixed;top:14px;left:18px;z-index:10;align-items:center;gap:11px;}
+.oc-login-brand img{width:32px;height:32px;display:block;border-radius:8px;filter:drop-shadow(0 2px 10px rgba(0,0,0,.6));}
+.oc-login-brand b{color:#fff;font:700 14px/1 Inter,system-ui,sans-serif;letter-spacing:-.02em;}
+.oc-login-brand b span{background:linear-gradient(135deg,#E6D6A0 0%,#B9A564 45%,#8C7A3E 120%);-webkit-background-clip:text;background-clip:text;color:transparent;}
 .oc-login-tag{display:none;position:fixed;left:32px;bottom:30px;z-index:10;max-width:40%;
   color:rgba(255,255,255,.92);font:600 17px/1.45 Inter,system-ui,sans-serif;letter-spacing:-.01em;
   text-shadow:0 2px 14px rgba(0,0,0,.7);}
@@ -120,8 +121,8 @@ HTML;
     public static function loginBrand(): string
     {
         return <<<'HTML'
-<div class="oc-login-brand"><img src="/img/brand-icon.svg" alt="Ops Cockpit"><b>Ops Cockpit</b></div>
-<div class="oc-login-tag">Alle Websites im Blick.<small>Status, Domains, SSL und Aufgaben — ein Cockpit.</small></div>
+<div class="oc-login-brand"><img src="/img/brand-icon.svg" alt="WebOps"><b>Web<span>Ops</span></b></div>
+<div class="oc-login-tag">Alle Websites im Blick.<small>Status, Domains, SSL und Aufgaben an einem Ort.</small></div>
 HTML;
     }
 }

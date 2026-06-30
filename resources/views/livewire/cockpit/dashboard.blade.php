@@ -2,7 +2,7 @@
 {{-- Topbar --}}
 <div class="topbar">
   <div class="topbar-left">
-    <span class="crumb">Ops Cockpit</span>
+    <span class="crumb">WebOps</span>
     <span class="crumb-sep">/</span>
     <h1>Dashboard</h1>
   </div>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{ config('app.name', 'Ops Cockpit') }}</title>
+<title>{{ config('app.name', 'WebOps') }}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -20,8 +20,8 @@
 
     {{-- Brand --}}
     <a href="{{ route('cockpit.dashboard') }}" class="brand" wire:navigate>
-      <img class="brand-logo" src="{{ asset('img/brand-icon.svg') }}" alt="Ops Cockpit">
-      <div class="brand-name">Ops<span>Cockpit</span></div>
+      <img class="brand-logo" src="{{ asset('img/brand-icon.svg') }}" alt="WebOps">
+      <div class="brand-name">Web<span>Ops</span></div>
     </a>
 
     {{-- Navigation --}}

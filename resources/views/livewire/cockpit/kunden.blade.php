@@ -101,23 +101,23 @@
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
           @php $ssl = $site->sslDaysLeft(); $sslCls = $ssl !== null && $ssl < 14 ? 'crit' : ($ssl !== null && $ssl < 30 ? 'warn' : 'ok'); @endphp
           <div class="kpi-card k-{{ $sslCls }}" style="padding:14px 16px">
-            <div class="kpi-top"><span class="kpi-label">SSL</span><span class="ti ti-certificate kpi-icon"></span></div>
+            <div class="kpi-top"><span class="kpi-label">SSL</span><span class="kpi-ic acc"><span class="ti ti-certificate"></span></span></div>
             <div class="kpi-value" style="font-size:22px;color:var(--{{ $sslCls }})">{{ $ssl !== null ? $ssl.'d' : '–' }}</div>
             <div class="kpi-sub {{ $sslCls }}">{{ $ssl !== null ? ($ssl<=0?'Abgelaufen':$site->ssl_expires_at->format('d.m.Y')) : 'Unbekannt' }}</div>
           </div>
           @php $dom = $site->domainDaysLeft(); $domCls = $dom !== null && $dom < 30 ? 'crit' : ($dom !== null && $dom < 60 ? 'warn' : 'ok'); @endphp
           <div class="kpi-card k-{{ $domCls }}" style="padding:14px 16px">
-            <div class="kpi-top"><span class="kpi-label">Domain</span><span class="ti ti-world kpi-icon"></span></div>
+            <div class="kpi-top"><span class="kpi-label">Domain</span><span class="kpi-ic acc"><span class="ti ti-world"></span></span></div>
             <div class="kpi-value" style="font-size:22px;color:var(--{{ $domCls }})">{{ $dom !== null ? $dom.'d' : '–' }}</div>
             <div class="kpi-sub {{ $domCls }}">{{ $dom !== null ? $site->domain_expires_at->format('d.m.Y') : 'Unbekannt' }}</div>
           </div>
           <div class="kpi-card k-acc" style="padding:14px 16px">
-            <div class="kpi-top"><span class="kpi-label">Updates</span><span class="ti ti-refresh-alert kpi-icon"></span></div>
+            <div class="kpi-top"><span class="kpi-label">Updates</span><span class="kpi-ic acc"><span class="ti ti-refresh-alert"></span></span></div>
             <div class="kpi-value" style="font-size:22px">{{ $site->pending_updates ?? 0 }}</div>
             <div class="kpi-sub">Ausstehend</div>
           </div>
           <div class="kpi-card k-{{ $site->status?->value === 'online' ? 'ok' : 'crit' }}" style="padding:14px 16px">
-            <div class="kpi-top"><span class="kpi-label">Status</span><span class="ti ti-pulse kpi-icon"></span></div>
+            <div class="kpi-top"><span class="kpi-label">Status</span><span class="kpi-ic acc"><span class="ti ti-pulse"></span></span></div>
             <div class="kpi-value" style="font-size:15px;font-weight:700">{{ $site->status?->label() ?? '–' }}</div>
             <div class="kpi-sub {{ $site->status?->value === 'online' ? 'ok' : 'crit' }}">
               {{ $site->last_seen_at ? 'Zuletzt: '.$site->last_seen_at->diffForHumans() : 'Nie gesehen' }}

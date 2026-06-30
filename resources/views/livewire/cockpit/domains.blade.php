@@ -19,22 +19,22 @@
   {{-- Summary --}}
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
     <div class="kpi-card {{ $sslCrit>0?'k-crit':'k-ok' }}" style="padding:14px 16px">
-      <div class="kpi-top"><span class="kpi-label">SSL kritisch</span><span class="ti ti-certificate-off kpi-icon"></span></div>
+      <div class="kpi-top"><span class="kpi-label">SSL kritisch</span><span class="kpi-ic acc"><span class="ti ti-certificate-off"></span></span></div>
       <div class="kpi-value" style="font-size:24px;{{ $sslCrit>0?'color:var(--crit)':'' }}">{{ $sslCrit }}</div>
       <div class="kpi-sub {{ $sslCrit>0?'crit':'' }}">{{ $sslCrit>0?'< 14 Tage':'Alles ok' }}</div>
     </div>
     <div class="kpi-card {{ $sslWarn>0?'k-warn':'k-ok' }}" style="padding:14px 16px">
-      <div class="kpi-top"><span class="kpi-label">SSL bald</span><span class="ti ti-certificate kpi-icon"></span></div>
+      <div class="kpi-top"><span class="kpi-label">SSL bald</span><span class="kpi-ic acc"><span class="ti ti-certificate"></span></span></div>
       <div class="kpi-value" style="font-size:24px;{{ $sslWarn>0?'color:var(--warn)':'' }}">{{ $sslWarn }}</div>
       <div class="kpi-sub {{ $sslWarn>0?'warn':'' }}">14–30 Tage</div>
     </div>
     <div class="kpi-card {{ $domCrit>0?'k-crit':'k-ok' }}" style="padding:14px 16px">
-      <div class="kpi-top"><span class="kpi-label">Domain kritisch</span><span class="ti ti-world-off kpi-icon"></span></div>
+      <div class="kpi-top"><span class="kpi-label">Domain kritisch</span><span class="kpi-ic acc"><span class="ti ti-world-off"></span></span></div>
       <div class="kpi-value" style="font-size:24px;{{ $domCrit>0?'color:var(--crit)':'' }}">{{ $domCrit }}</div>
       <div class="kpi-sub {{ $domCrit>0?'crit':'' }}">{{ $domCrit>0?'< 30 Tage':'Alles ok' }}</div>
     </div>
     <div class="kpi-card {{ $domWarn>0?'k-warn':'k-ok' }}" style="padding:14px 16px">
-      <div class="kpi-top"><span class="kpi-label">Domain bald</span><span class="ti ti-world kpi-icon"></span></div>
+      <div class="kpi-top"><span class="kpi-label">Domain bald</span><span class="kpi-ic acc"><span class="ti ti-world"></span></span></div>
       <div class="kpi-value" style="font-size:24px;{{ $domWarn>0?'color:var(--warn)':'' }}">{{ $domWarn }}</div>
       <div class="kpi-sub {{ $domWarn>0?'warn':'' }}">30–60 Tage</div>
     </div>

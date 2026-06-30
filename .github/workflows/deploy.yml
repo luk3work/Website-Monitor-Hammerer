@@ -86,7 +86,7 @@ jobs:
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
         run: |
           cat > .env.deploy <<EOF
-          APP_NAME="Ops Cockpit"
+          APP_NAME="WebOps"
           APP_ENV=production
           APP_KEY=${APP_KEY}
           APP_DEBUG=false
