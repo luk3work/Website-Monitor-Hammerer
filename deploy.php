@@ -71,6 +71,12 @@ before('deploy:symlink', 'artisan:cache:clear:all');
 
 after('deploy:symlink', 'artisan:migrate');
 
+// public/storage-Symlink je Release sicherstellen (Profilbilder etc.).
+task('artisan:storage:link:safe', function () {
+    run('cd {{release_path}} && {{bin/php}} artisan storage:link || true');
+})->desc('public/storage-Symlink sicherstellen');
+after('deploy:symlink', 'artisan:storage:link:safe');
+
 // Initialen Admin-Benutzer nach der Migration sicherstellen (idempotent).
 task('artisan:seed:admin', function () {
     run('cd {{release_path}} && {{bin/php}} artisan db:seed --class=AdminUserSeeder --force');

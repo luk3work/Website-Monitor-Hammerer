@@ -485,3 +485,7 @@ label.lbl { font-size: 12px; font-weight: 600; color: var(--dim); display: block
 .pkg-tile-name { font-size: 13px; font-weight: 600; color: var(--tx); }
 .pkg-tile-sub { font-size: 11.5px; color: var(--faint); margin-top: 1px; }
 .pkg-chip .ti { font-size: 12px; }
+
+/* ---------- Avatars (Bild-Fallback) ---------- */
+.avatar-xl { width: 68px; height: 68px; border-radius: 50%; object-fit: cover; flex-shrink: 0; box-shadow: inset 0 1px 0 rgba(255,255,255,0.22); }
+img.user-av, img.user-av-lg, img.cust-av, img.detail-av { object-fit: cover; }

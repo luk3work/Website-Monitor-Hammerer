@@ -49,10 +49,48 @@ class CockpitSmokeTest extends TestCase
     {
         foreach ([
             'cockpit.dashboard', 'cockpit.tasks', 'cockpit.kunden', 'cockpit.seiten',
-            'cockpit.domains', 'cockpit.berichte', 'cockpit.benutzer', 'cockpit.einstellungen',
+            'cockpit.domains', 'cockpit.plugins', 'cockpit.berichte', 'cockpit.benutzer', 'cockpit.einstellungen',
         ] as $route) {
             $this->get(route($route))->assertOk();
         }
+    }
+
+    public function test_plugins_crud(): void
+    {
+        $key = \App\Models\Package::query()->value('key');
+
+        Livewire::test(\App\Livewire\Cockpit\Plugins::class)
+            ->call('setTab', 'own')->assertOk()
+            ->call('openModal')
+            ->set('newName', 'Mein Plugin')
+            ->set('newRepoUrl', 'https://github.com/agentur/mein-plugin')
+            ->call('createPlugin')->assertOk()->assertHasNoErrors();
+
+        Livewire::test(\App\Livewire\Cockpit\Plugins::class)
+            ->call('setTab', 'external')->assertOk()
+            ->call('openModal')
+            ->set('newName', 'WooCommerce')
+            ->set('newPackageKey', (string) $key)
+            ->call('createPlugin')->assertOk()->assertHasNoErrors();
+
+        $this->assertSame(2, \App\Models\Plugin::count());
+
+        $id = \App\Models\Plugin::query()->value('id');
+        Livewire::test(\App\Livewire\Cockpit\Plugins::class)->call('deletePlugin', $id)->assertOk();
+        $this->assertSame(1, \App\Models\Plugin::count());
+    }
+
+    public function test_profile_avatar_upload(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        Livewire::test(\App\Livewire\Cockpit\Benutzer::class)
+            ->set('avatar', \Illuminate\Http\UploadedFile::fake()->image('me.jpg', 300, 300))
+            ->assertHasNoErrors();
+
+        $path = \App\Models\User::query()->firstOrFail()->avatar_path;
+        $this->assertNotNull($path);
+        \Illuminate\Support\Facades\Storage::disk('public')->assertExists($path);
     }
 
     /** Dashboard rendert die neuen Graphen ohne Fehler. */

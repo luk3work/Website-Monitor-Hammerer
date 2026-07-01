@@ -72,6 +72,12 @@
         @endif
       </a>
 
+      <a href="{{ route('cockpit.plugins') }}"
+         class="nav-item {{ request()->routeIs('cockpit.plugins') ? 'active' : '' }}">
+        <span class="ti ti-puzzle"></span>
+        <span>Plugins</span>
+      </a>
+
       <div class="rail-sep"></div>
       <div class="nav-section-label">Berichte</div>
 
@@ -103,10 +109,14 @@
       <div class="user-pill">
         @php
           $u = auth()->user();
-          $colors = ['#0EA5E9','#10B981','#A855F7','#F59E0B','#EF4444'];
+          $colors = ['#B9A564','#10B981','#A855F7','#F59E0B','#EF4444'];
           $col = $colors[crc32($u->name ?? '') % 5];
         @endphp
-        <div class="user-av" style="background:{{ $col }}">{{ strtoupper(substr($u->name ?? 'U', 0, 2)) }}</div>
+        @if($u && $u->avatarUrl())
+          <img class="user-av" src="{{ $u->avatarUrl() }}" alt="">
+        @else
+          <div class="user-av" style="background:{{ $col }}">{{ strtoupper(substr($u->name ?? 'U', 0, 2)) }}</div>
+        @endif
         <div class="user-info">
           <div class="user-name">{{ $u->name ?? 'Benutzer' }}</div>
           <div class="user-role">{{ $u->role ?? 'admin' }}</div>

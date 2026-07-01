@@ -22,6 +22,7 @@ class User extends Authenticatable implements FilamentUser, HasName
         'email',
         'password',
         'role',
+        'avatar_path',
     ];
 
     protected $hidden = [
@@ -54,5 +55,13 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    /** Öffentliche URL des Profilbilds (oder null für Initialen-Fallback). */
+    public function avatarUrl(): ?string
+    {
+        return $this->avatar_path
+            ? \Illuminate\Support\Facades\Storage::disk('public')->url($this->avatar_path)
+            : null;
     }
 }
